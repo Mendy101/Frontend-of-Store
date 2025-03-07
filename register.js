@@ -1,5 +1,5 @@
 function submitRegistration() {
-  if (!checkInput()) return;
+  //  if (!checkInput()) return;
 
   const fullName = document.getElementById("fn").value;
   const email = document.getElementById("em").value;
@@ -19,12 +19,6 @@ function submitRegistration() {
     password: password,
   };
 
-  //   fetch("http://localhost:3000/user/register", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify(userData),
-  //   })
-
   fetch("http://localhost:3000/user/register", {
     method: "POST",
     headers: {
@@ -35,9 +29,8 @@ function submitRegistration() {
     .then((response) => response.json())
     .then((data) => {
       console.log("Success:", data);
-      if (data.accessToken) {
-        // Redirect to login page or dashboard
-        window.location.href = "/dashboard";
+      if (data) {
+        window.location.href = "/login.html";
       }
     })
     .catch((error) => {

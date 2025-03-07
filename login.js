@@ -7,23 +7,19 @@ function submitLogin() {
     password: password,
   };
 
-  sendDataOfUser();
-}
-
-const sendDataOfUser = () => {
-  fetch("/user/login", {
-    // method: 'POST',
-    // headers: {
-    //     'Content-Type': 'application/json',
-    // },
-    // body: JSON.stringify(userData)
-    body: userData,
+  fetch("http://localhost:3000/user/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(userData),
   })
     .then((response) => response.json())
     .then((data) => {
-      if (data.success) {
+      console.log(data);
+      if (data) {
         alert("Login successful!");
-        window.location.href = "/dashboard.html"; // Redirect to dashboard or home page
+        window.location.href = "/register.html"; // Redirect to dashboard or home page
       } else {
         alert("Failed to log in. Please check your credentials.");
       }
@@ -32,6 +28,4 @@ const sendDataOfUser = () => {
       console.error("Error:", error);
       alert("Failed to log in. Please try again.");
     });
-};
-
-
+}
