@@ -137,7 +137,7 @@ function buildTopLine() {
 function buildBox(_json) {
   return `
   <div class="picBox mx-auto mt-4">
-  <img class="image" src="../Images/${_json.image}" alt="${_json.type}" >
+  <img class="image" src="../Images/${_json.img}" alt="${_json.type}" >
   </div>
   
   <div class="middleBox pb-3 d-flex align-items-center justify-content-between ">

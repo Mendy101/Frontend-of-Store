@@ -325,6 +325,8 @@ function updateCartAmount(productId, amount) {
   }
 }
 
+
+
 function fetchDataFromServer(category, id) {
   fetch(`http://127.0.0.1:3000/products/categories?categories=${category}`)
     .then((response) => response.json())
@@ -350,3 +352,5 @@ function fetchDataFromServer(category, id) {
     createListOfElement();
   }
 }
+
+

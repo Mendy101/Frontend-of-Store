@@ -38,17 +38,29 @@ document.addEventListener('DOMContentLoaded', loadBootstrapAndInitialize);
  *
  * @returns {Array<Record<'id' | 'type' | 'amount' | 'image', number | string>>}
  */
-function getInventory() {
-  return JSON.parse(localStorage.getItem('inventory')) || [];
+// function getInventory() {
+//   return JSON.parse(localStorage.getItem('inventory')) || [];
+// }
+
+// function setInventory(stock) {
+//   localStorage.setItem('inventory', JSON.stringify(stock));
+// }
+// if (getInventory().length === 0) {
+  //   setInventory(inventory_DB);
+  
+  //--------------------------------------------------------------------------------------------------------------------
+
+async function getInventory() {
+  try {
+    const response = await fetch(`http://127.0.0.1:3000/products`);
+    return await response.json()
+  } catch (error) {
+    console.error("Error:", error)
+    return []
+  }
 }
 
-function setInventory(stock) {
-  localStorage.setItem('inventory', JSON.stringify(stock));
-}
-
-if (getInventory().length === 0) {
-  setInventory(inventory_DB);
-}
+//--------------------------------------------------------------------------------------------------------------------
 
 function updateStockAmount(productId, amount) {
   const stock = getInventory();
