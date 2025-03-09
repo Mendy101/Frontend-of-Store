@@ -121,6 +121,7 @@ function filterByCompany(json_arr, company, id, i) {
 function filterByColor(json_arr, color, id, i) {
   let temp_arr = JSON.parse(JSON.stringify(json_arr)); //create copy
 
+
   checkbox = document.getElementsByClassName("checkBox")[i]; //get element
   if (checkbox.checked)
     temp_arr = json_arr.filter((item) => item.color === color);

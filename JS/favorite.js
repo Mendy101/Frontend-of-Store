@@ -22,6 +22,7 @@ function displayFavoriteItems() {
 /**
  * add element to cart
  */
+
 function addToCartFromFavorites() {
   const cardBody = event.target.closest('.card-body'); //get the element
 

@@ -325,32 +325,44 @@ function updateCartAmount(productId, amount) {
   }
 }
 
+//  function fetchDataFromServer(category, id) {
+//   fetch(`http://127.0.0.1:3000/products/categories?categories=${category}`)
+//     .then((response) => response.json())
+//     .then((smartphones) => {
+//       console.log(smartphones);
+//       myOnload(smartphones);
+//     })
+//     .catch((error) => console.error("Error:", error));
 
-
-function fetchDataFromServer(category, id) {
-  fetch(`http://127.0.0.1:3000/products/categories?categories=${category}`)
-    .then((response) => response.json())
-    .then((smartphones) => {
-      console.log(smartphones);
-      myOnload(smartphones);
-    })
-    .catch((error) => console.error("Error:", error));
-
-  function myOnload(smartphones) {
+async function fetchDataFromServer(category, id) {
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:3000/products/categories?categories=${category}`
+    );
+    const res = await response.json();
+    myOnload(res);
+    // console.log(res?.data.smartphones);
+    if (res.data.smartphones) return res?.data.smartphones;
+    if (res?.data.accessories) return res?.data.accessories;
+    if ( res?.data.tablets) return res?.data.tablets;
+    if (res?.data.laptops) return res?.data.laptops;
+  } catch (error) {
+    console.error("Error:", error);
+    return [];
+  }
+  function myOnload(response) {
     createTopLine(); //create the top line
-    let arr = smartphones.data;
+    let arr = response.data;
     if (arr.smartphones) printData(arr.smartphones, id); //create element in page
     if (arr.accessories) printData(arr.accessories, id); //create element in page
     if (arr.tablets) printData(arr.tablets, id); //create element in page
     if (arr.laptops) printData(arr.laptops, id); //create element in page
 
     //create button for price filter
-    document.getElementById("filterIn").innerHTML = `
-  <button onclick="filter(smartphones_arr,'Smartphone',389,5429)" class="mt-2">Filter</button>`;
-    createPlaceholder(389, 5429);
+  //   document.getElementById("filterIn").innerHTML = `
+  // <button onclick="filter(smartphones_arr,'Smartphone',389,5429)" class="mt-2">Filter</button>`;
+  //   createPlaceholder(389, 5429);
 
     createListOfElement();
   }
 }
-
-

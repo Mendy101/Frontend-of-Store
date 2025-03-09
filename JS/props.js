@@ -16,9 +16,9 @@
  * create list of options
  */
 function listOfSort() {
-  return `<button onclick="lowToHigh(props_arr, 'Props')">Price: Lowest To Highest</button>
-          <button onclick="highToLow(props_arr, 'Props')">Price: Highest To Lowest</button>
-          <button onclick="popular(props_arr, 'Props')">Popularity</button>`;
+  return `<button onclick="lowToHigh(data, 'Props')">Price: Lowest To Highest</button>
+          <button onclick="highToLow(data, 'Props')">Price: Highest To Lowest</button>
+          <button onclick="popular(data, 'Props')">Popularity</button>`;
 }
 
 /**
@@ -26,16 +26,16 @@ function listOfSort() {
  * create list of options
  */
 function listOfCompany() {
-  return `    <input id="appleProps" onchange="filterByCompany(props_arr,'Apple','Props',0)" class="checkBox" type="checkbox" />
+  return `    <input id="appleProps" onchange="filterByCompany(data,'Apple','Props',0)" class="checkBox" type="checkbox" />
                       Apple
                       <br />
-                      <input id="boseProps" onchange="filterByCompany(props_arr,'Bose','Props',1)" class="checkBox" type="checkbox" />
+                      <input id="boseProps" onchange="filterByCompany(data,'Bose','Props',1)" class="checkBox" type="checkbox" />
                       Bose
                       <br />
-                      <input id="sonyProps" onchange="filterByCompany(props_arr,'Sony','Props',2)" class="checkBox" type="checkbox" />
+                      <input id="sonyProps" onchange="filterByCompany(data,'Sony','Props',2)" class="checkBox" type="checkbox" />
                       Sony
                       <br />
-                      <input id="logitechProps" onchange="filterByCompany(props_arr,'Logitech','Props',2)" class="checkBox" type="checkbox" />
+                      <input id="logitechProps" onchange="filterByCompany(data,'Logitech','Props',2)" class="checkBox" type="checkbox" />
                       Logitech`;
 }
 
@@ -45,17 +45,25 @@ function listOfCompany() {
  */
 function listOfColor() {
   return `
-                    <input id="blackColor" onchange="filterByColor(props_arr,'Black','Props',3)"  class="checkBox" type="checkbox" />
+                    <input id="blackColor" onchange="filterByColor(data,'Black','Props',3)"  class="checkBox" type="checkbox" />
                       Black
                       <br />
-                      <input id="whiteColor" onchange="filterByColor(props_arr,'White','Props',4)" class="checkBox" type="checkbox" />
+                      <input id="whiteColor" onchange="filterByColor(data,'White','Props',4)" class="checkBox" type="checkbox" />
                       White
                       <br />
-                      <input id="silverColor" onchange="filterByColor(props_arr,'Silver','Props',5)" class="checkBox" type="checkbox" />
+                      <input id="silverColor" onchange="filterByColor(data,'Silver','Props',5)" class="checkBox" type="checkbox" />
                       Silver
     `;
 }
 
-fetchDataFromServer("accessories", "Props");
+let data = [];
+async function loadData() {
+  data = await fetchDataFromServer("accessories", "Props");
 
-// tablets, laptops,
+  console.log(data);
+  document.getElementById("filterIn").innerHTML = `
+  <button onclick="filter(data,'Props',69,2500)" class="mt-2">Filter</button>`;
+  createPlaceholder(69, 2500);
+}
+
+loadData();
