@@ -7,7 +7,7 @@ function submitLogin() {
     password: password,
   };
 
-  fetch("http://localhost:3000/user/login", {
+  fetch("http://localhost:8081/user/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -19,7 +19,7 @@ function submitLogin() {
       console.log(data);
       if (data) {
         alert("Login successful!");
-        window.location.href = "/register.html"; // Redirect to dashboard or home page
+        window.location.href = "../HTML/Index.html"; // Redirect to dashboard or home page
       } else {
         alert("Failed to log in. Please check your credentials.");
       }
