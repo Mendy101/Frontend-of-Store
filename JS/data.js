@@ -1,4 +1,17 @@
 //all type of smartphone in the store
+
+
+
+
+// let smartphones_arr = [];
+// async function loadData() {
+//   smartphones_arr = await fetchDataFromServer("smartphones", "Smartphone");
+//   console.log(smartphones_arr);
+ 
+// }
+
+// loadData();
+
 const smartphones_arr = [
   {
     id: "40047",
@@ -798,3 +811,19 @@ let inventory_DB = [
     image: "Computers/h_Spectre.jpg",
   },
 ];
+
+
+
+
+// async function getData() {
+//   try {
+//     const response = await fetch(`http://127.0.0.1:3000/products`);
+//     return await response.json()
+//   } catch (error) {
+//     console.error("Error:", error)
+//     return []
+//   }
+// }
+
+// getData();
+// console.log(data)
