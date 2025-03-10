@@ -29,8 +29,8 @@ function submitRegistration() {
     .then((response) => response.json())
     .then((data) => {
       console.log("Success:", data);
-      if (data) {
-        window.location.href = "/login.html";
+      if (data.success) {
+        window.location.href = "../HTML/login.html";
       }
     })
     .catch((error) => {

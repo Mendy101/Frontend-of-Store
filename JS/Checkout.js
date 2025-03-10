@@ -1,18 +1,23 @@
-let items = getItemsFromCart();
+let items = null;
 let totalPrice = 0;
 
-function renderItems() {
+async function renderItems() {
   const itemList = document.getElementById("item-list");
   itemList.innerHTML = "";
   totalPrice = 0;
 
+  if (!items) {
+    items = await getItemsFromCart();
+  }
+
+  console.log(items);
   items.forEach((item) => {
     const row = itemRow();
     const box = itemBox();
     totalPrice += item.price * item.amount;
 
     row.appendChild(box);
-    row.appendChild(divider());
+    row.appendChild(divider()); ////
 
     const itemProperties = [
       itemImg(`../Images/${item.imageSrc}`),
@@ -27,6 +32,7 @@ function renderItems() {
     itemList.appendChild(row);
   });
 
+  debugger;
   renderTotalPrice();
 }
 
@@ -220,16 +226,47 @@ function updateItemAndTotalPrices(item, operator) {
   renderTotalPrice();
 }
 
-function getItemsFromCart() {
-  const items = JSON.parse(localStorage.getItem("currentCart"));
+async function getItemsFromCart() {
+  // const items = JSON.parse(localStorage.getItem("currentCart"));
+  let arr = [];
+  try {
+    const response = await fetch("http://127.0.0.1:8081/user/cart", {
+      method: "GET",
+      credentials: "include", // שולח cookies לשרת
+    });
+    const res = await response.json();
+
+    try {
+      const response = await fetch("http://127.0.0.1:8081/user/cart", {
+        method: "GET",
+        credentials: "include", // שולח cookies לשרת
+      });
+
+      const mktFavorite = await response.json();
+
+      const res = await fetch(`http://127.0.0.1:3000/products`);
+      const products = await res.json();
+
+      if (mktFavorite.info.length !== 0) {
+        for (let index = 0; index < mktFavorite.info.length; index++) {
+          arr.push(
+            products.data.filter((p) => p.mkt === mktFavorite.info[index])[0]
+          );
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  } catch (err) {}
+
   const result = [];
-  if (items) {
-    items.forEach((item) => {
+  if (arr) {
+    arr.forEach((item) => {
       result.push({
-        id: item.id,
+        id: item.mkt,
         name: item.name,
         amount: item.amount,
-        imageSrc: item.image,
+        imageSrc: item.img,
         price: toNumber(item.price),
       });
     });

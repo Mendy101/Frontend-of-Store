@@ -1,21 +1,42 @@
-favorites_arr = JSON.parse(localStorage.getItem('favorites_arr')) || []; //get favorite items
-const favoriteContainer = document.getElementById('favoriteItems');
+// favorites_arr = JSON.parse(localStorage.getItem('favorites_arr')) || []; //get favorite items
+const favoriteContainer = document.getElementById("favoriteItems");
 
 /**
  * display products in favorite
  */
-function displayFavoriteItems() {
-  if (favorites_arr.length === 0)
-    //not exist favorites
-    document.getElementById('header').innerHTML = 'No Favorites Yet...';
-  else {
-    favorites_arr.forEach((item) => {
-      const itemElement = document.createElement('div');
-      itemElement.classList.add('col-md-2', 'mb-2');
-
-      itemElement.innerHTML = innerHTMLOfFavorites(item);
-      favoriteContainer.appendChild(itemElement); //display item
+async function displayFavoriteItems() {
+  try {
+    const response = await fetch("http://127.0.0.1:8081/user/favorites", {
+      method: "GET",
+      credentials: "include", // שולח cookies לשרת
     });
+
+    const mktFavorite = await response.json();
+
+    const res = await fetch(`http://127.0.0.1:3000/products`);
+    const products = await res.json();
+
+    if (mktFavorite.info.length === 0)
+      //not exist favorites
+      document.getElementById("header").innerHTML = "No Favorites Yet...";
+    else {
+      let arr = [];
+      for (let index = 0; index < mktFavorite.info.length; index++) {
+        arr.push(
+          products.data.filter((p) => p.mkt === mktFavorite.info[index])
+        );
+      }
+
+      arr.forEach((item) => {
+        const itemElement = document.createElement("div");
+        itemElement.classList.add("col-md-2", "mb-2");
+
+        itemElement.innerHTML = innerHTMLOfFavorites(item[0]);
+        favoriteContainer.appendChild(itemElement); //display item
+      });
+    }
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -24,11 +45,13 @@ function displayFavoriteItems() {
  */
 
 function addToCartFromFavorites() {
-  const cardBody = event.target.closest('.card-body'); //get the element
+  const cardBody = event.target.closest(".card-body"); //get the element
 
-  const idElement = cardBody.querySelector('.id-price'); //get id
+  const idElement = cardBody.querySelector(".id-price"); //get id
 
-  const id = parseInt(idElement.textContent.split(':')[1]);
+  const id = parseInt(idElement.textContent.split(":")[1]);
+
+  
 
   //------------ find array and add to cart ------------//
   if (parseInt(id / 10000) == 5)
@@ -44,17 +67,35 @@ function addToCartFromFavorites() {
 /**
  * remove element from favorites
  */
-function removeFromFavorites() {
-  const cardBody = event.target.closest('.card-body'); //get the element
-  const idElement = cardBody.querySelector('.id-price'); //get id
-  const id = parseInt(idElement.textContent.split(':')[1]); //casting to number
+async function removeFromFavorites() {
+  const cardBody = event.target.closest(".card-body"); //get the element
+  const idElement = cardBody.querySelector(".id-price"); //get id
+  const mkt = parseInt(idElement.textContent.split(":")[1]); //casting to number
 
-  favorites_arr = favorites_arr.filter((item) => item.id != id);
+  try {
+    const response2 = await fetch(
+      "http://127.0.0.1:8081/user/removeFromFavorite",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mkt: mkt }),
+        credentials: "include",
+      }
+    );
+    const res2 = await response2.json();
+    console.log(res2);
+  } catch (err) {
+    console.log(err);
+  }
 
-  localStorage.setItem('favorites_arr', JSON.stringify(favorites_arr));
 
-  alert('Product removed from cart successfully.');
-  favoriteContainer.innerHTML = '';
+
+  // favorites_arr = favorites_arr.filter((item) => item.id != id);
+
+  // localStorage.setItem("favorites_arr", JSON.stringify(favorites_arr));
+
+  alert("Product removed from cart successfully.");
+  favoriteContainer.innerHTML = "";
   displayFavoriteItems(); //display element
 }
 
@@ -66,10 +107,10 @@ function removeFromFavorites() {
 function innerHTMLOfFavorites(item) {
   return `  
               <div class="card h-100">
-                <img src="../Images/${item.image}" class="card-img-top">
+                <img src="../Images/${item.img}" class="card-img-top">
                 <div class="card-body">
-                  <h5 class="card-title type">${item.type}</h5>
-                  <p class="card-text  id-price"><strong>ID:</strong> ${item.id}
+                  <h5 class="card-title type">${item.name}</h5>
+                  <p class="card-text  id-price"><strong>ID:</strong> ${item.mkt}
                                        <br>
                                        <strong>Price:</strong> ${item.price}
                   </p>

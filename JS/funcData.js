@@ -215,62 +215,46 @@ async function favorites(product, buttonElement) {
     const res = await response.json();
     console.log(res);
 
-    if (response.success) {
+    if (res.success) {
       alert("Add to favorites successfully");
       buttonElement.style.color = "red";
     } else {
+      const response2 = await fetch(
+        "http://127.0.0.1:8081/user/removeFromFavorite",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mkt: product.mkt }),
+          credentials: "include",
+        }
+      );
+      const res2 = await response2.json();
+      console.log(res2);
+
       alert("remove from favorites successfully");
       buttonElement.style.color = "black";
     }
-
-    // const products = await fetch(
-    //   `http://127.0.0.1:3000/products/categories?categories=${category}`
-    // );
-
-    // products = products.filter((p) => p.mkt == res.mkt);
-    // return products;
   } catch (error) {
     console.error("Error:", error);
-    // return null;
   }
-
-  // const products = await addFavorite(product.mkt);
-
-  //if the product already exist
-  // let exists = favorites_arr.some((item) => item.id === product.id);
-
-  // if (!exists) {
-  //   //add to favorites
-  //   favorites_arr.push(product);
-  //   alert("Add to favorites successfully");
-  //   buttonElement.style.color = "red";
-  // } else {
-  //   // remove from favorites
-  //   favorites_arr = favorites_arr.filter(
-  //     (favorites_arr) => favorites_arr.id !== product.id
-  //   );
-
-  //   alert("remove from favorites successfully");
-  //   buttonElement.style.color = "black";
-  // }
-
-  // localStorage.setItem("favorites_arr", JSON.stringify(favorites_arr));
 }
 
 /**
  * save the color of favorites icon
  */
 async function saveFavoritesInprintData() {
-  const response = await fetch("http://127.0.0.1:8081/user/avorite", {
+  const response = await fetch("http://127.0.0.1:8081/user/favorites", {
     method: "GET",
     credentials: "include", // שולח cookies לשרת
   });
 
   const favorite = await response.json();
 
+  console.log(favorite);
+
   let favoriteMap = {}; //create map off favorite item
 
-  favorite.forEach((mkt) => {
+  favorite.info.forEach((mkt) => {
     //init items in map
     favoriteMap[mkt] = true;
   });
@@ -292,16 +276,38 @@ async function saveFavoritesInprintData() {
 
 ///------ Cart API ------///
 
-/**
- * update cart
- * @param {localStorage} cart all element in cart
- */
-const setCurrentCart = (cart) => {
-  localStorage.setItem("currentCart", JSON.stringify(cart));
+// /**
+//  * update cart
+//  * @param {localStorage} cart all element in cart
+//  */
+const setCurrentCart = async (product) => {
+  try {
+    const response = await fetch("http://127.0.0.1:8081/user/addToCart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mkt: product.mkt }),
+      credentials: "include",
+    });
+    const res = await response.json();
+    console.log(res.info);
+  } catch (err) {}
+
+  // localStorage.setItem("currentCart", JSON.stringify(cart));
 };
 
-const getCurrentCart = () => {
-  return JSON.parse(localStorage.getItem("currentCart")) || [];
+const getCurrentCart = async () => {
+  try {
+    const response = await fetch("http://127.0.0.1:8081/user/cart", {
+      method: "GET",
+      credentials: "include", // שולח cookies לשרת
+    });
+    const res = await response.json();
+    console.log(res.info);
+    return res.info;
+  } catch (err) {
+    return null;
+  }
+  // return JSON.parse(localStorage.getItem("currentCart")) || [];
 };
 
 /**
@@ -311,16 +317,23 @@ const getCurrentCart = () => {
 function addToCart(product) {
   let currentCart = getCurrentCart(); //get the cart
   //if the product already exist
-  let foundInCart = currentCart.find((item) => item.id === product.id);
-  const amountStock = getProductAmount(product.id);
+  let foundInCart = false;
+  for (let index = 0; index < currentCart.length; index++) {
+    if (item[index] === product.id) {
+      foundInCart = true;
+      break;
+    }
+  }
+  // let foundInCart = currentCart.find((item) => item === product.id);
+  // const amountStock = getProductAmount(product.id) || 2;
+  const amountStock = 2;
 
   if (amountStock === 0) {
     alert("The item is not in stock");
   } else if (!foundInCart) {
     //add to cart
     product["amount"] = 1; //add attribute to data
-    currentCart.push(product);
-    setCurrentCart(currentCart); // =---------------
+    setCurrentCart(product); // =---------------
     alert("Add to cart successfully");
     updateStockAmount(product.id, -1);
   } else {
@@ -334,13 +347,23 @@ function addToCart(product) {
  * remove item from the cart
  * @param {number} productId id of item
  */
-function removeFromCart(productId) {
-  const data = getCurrentCart();
+async function removeFromCart(productId) {
+  // const data = getCurrentCart();  try{
+  try {
+    const response = await fetch("http://127.0.0.1:8081/user/removeFromCart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mkt: product.mkt }),
+      credentials: "include",
+    });
+    const res = await response.json();
+    console.log(res.info);
+  } catch (err) {}
 
-  const newCart = data.filter((item) => item.id !== productId);
+  // const newCart = data.filter((item) => item.id !== productId);
 
   // Update amount
-  setCurrentCart(newCart);
+  // setCurrentCart(newCart);
 }
 
 /**
