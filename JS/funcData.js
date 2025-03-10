@@ -197,43 +197,82 @@ function addBanner(id) {
 
 ///------ Favorite API ------///
 
-let favorites_arr = JSON.parse(localStorage.getItem("favorites_arr")) || [];
+// let favorites_arr = JSON.parse(localStorage.getItem("favorites_arr")) || [];
+
 /**
  * add to favorites
  * @param {object} product the product favorite
  * @param {*} buttonElement
  */
-function favorites(product, buttonElement) {
-  //if the product already exist
-  let exists = favorites_arr.some((item) => item.id === product.id);
+async function favorites(product, buttonElement) {
+  try {
+    const response = await fetch("http://127.0.0.1:8081/user/addFavorite", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mkt: product.mkt }),
+      credentials: "include",
+    });
+    const res = await response.json();
+    console.log(res);
 
-  if (!exists) {
-    //add to favorites
-    favorites_arr.push(product);
-    alert("Add to favorites successfully");
-    buttonElement.style.color = "red";
-  } else {
-    // remove from favorites
-    favorites_arr = favorites_arr.filter(
-      (favorites_arr) => favorites_arr.id !== product.id
-    );
+    if (response.success) {
+      alert("Add to favorites successfully");
+      buttonElement.style.color = "red";
+    } else {
+      alert("remove from favorites successfully");
+      buttonElement.style.color = "black";
+    }
 
-    alert("remove from favorites successfully");
-    buttonElement.style.color = "black";
+    // const products = await fetch(
+    //   `http://127.0.0.1:3000/products/categories?categories=${category}`
+    // );
+
+    // products = products.filter((p) => p.mkt == res.mkt);
+    // return products;
+  } catch (error) {
+    console.error("Error:", error);
+    // return null;
   }
 
-  localStorage.setItem("favorites_arr", JSON.stringify(favorites_arr));
+  // const products = await addFavorite(product.mkt);
+
+  //if the product already exist
+  // let exists = favorites_arr.some((item) => item.id === product.id);
+
+  // if (!exists) {
+  //   //add to favorites
+  //   favorites_arr.push(product);
+  //   alert("Add to favorites successfully");
+  //   buttonElement.style.color = "red";
+  // } else {
+  //   // remove from favorites
+  //   favorites_arr = favorites_arr.filter(
+  //     (favorites_arr) => favorites_arr.id !== product.id
+  //   );
+
+  //   alert("remove from favorites successfully");
+  //   buttonElement.style.color = "black";
+  // }
+
+  // localStorage.setItem("favorites_arr", JSON.stringify(favorites_arr));
 }
 
 /**
  * save the color of favorites icon
  */
-function saveFavoritesInprintData() {
+async function saveFavoritesInprintData() {
+  const response = await fetch("http://127.0.0.1:8081/user/avorite", {
+    method: "GET",
+    credentials: "include", // שולח cookies לשרת
+  });
+
+  const favorite = await response.json();
+
   let favoriteMap = {}; //create map off favorite item
 
-  favorites_arr.forEach((favorite) => {
+  favorite.forEach((mkt) => {
     //init items in map
-    favoriteMap[favorite.id] = true;
+    favoriteMap[mkt] = true;
   });
 
   let productElements = document.querySelectorAll(".mainBox"); //get all element in page
@@ -341,10 +380,10 @@ async function fetchDataFromServer(category, id) {
     );
     const res = await response.json();
     myOnload(res);
-    // console.log(res?.data.smartphones);
+    console.log(res);
     if (res.data.smartphones) return res?.data.smartphones;
     if (res?.data.accessories) return res?.data.accessories;
-    if ( res?.data.tablets) return res?.data.tablets;
+    if (res?.data.tablets) return res?.data.tablets;
     if (res?.data.laptops) return res?.data.laptops;
   } catch (error) {
     console.error("Error:", error);
@@ -359,9 +398,9 @@ async function fetchDataFromServer(category, id) {
     if (arr.laptops) printData(arr.laptops, id); //create element in page
 
     //create button for price filter
-  //   document.getElementById("filterIn").innerHTML = `
-  // <button onclick="filter(smartphones_arr,'Smartphone',389,5429)" class="mt-2">Filter</button>`;
-  //   createPlaceholder(389, 5429);
+    //   document.getElementById("filterIn").innerHTML = `
+    // <button onclick="filter(smartphones_arr,'Smartphone',389,5429)" class="mt-2">Filter</button>`;
+    //   createPlaceholder(389, 5429);
 
     createListOfElement();
   }
