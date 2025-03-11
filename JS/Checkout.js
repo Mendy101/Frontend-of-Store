@@ -10,6 +10,8 @@ async function renderItems() {
     items = await getItemsFromCart();
   }
 
+  console.log(items);
+
   for (let i = 0; i < items.length; i++) {
     const row = itemRow();
     const box = itemBox();
@@ -59,13 +61,62 @@ function handlePaymentAlert() {
   const form = document.getElementById("payment-form");
   const successAlert = document.getElementById("success-alert");
 
-  form.addEventListener("submit", function (event) {
+  form.addEventListener("submit", async function (event) {
     event.preventDefault();
 
     if (!checkInput()) return;
 
     successAlert.classList.remove("d-none");
     successAlert.classList.add("d-block");
+
+    try {
+      if (!items) {
+        items = await getItemsFromCart();
+      }
+
+      let data = {
+        mkt: "",
+        name: "",
+        price: "",
+        quantity: 0,
+      };
+
+      let sendData = [];
+      items.forEach((p) => {
+        data.mkt = p.mkt;
+        data.name = p.name;
+        data.price = "₪" + p.price;
+        data.quantity = p.amount;
+
+        sendData.push(data);
+      });
+
+      const myAddress = document.getElementById("billingAddress").value;
+      let address = {
+        address: myAddress,
+      };
+
+      console.log(sendData);
+      console.log(myAddress);
+
+      const response = await fetch("http://127.0.0.1:3002/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: sendData,
+          shippingAddress: address,
+        }),
+        credentials: "include",
+      });
+      const res = await response.json();
+      console.log(res);
+
+      await items.forEach(async (item) => await removeFromCart(item.mkt, true));
+      location.reload();
+      console.log("render");
+    } catch (err) {
+      console.log(err);
+    }
 
     const userData = JSON.parse(localStorage.getItem("userData")) || [];
     if (userData && userData.length !== 0) {

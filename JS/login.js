@@ -25,6 +25,7 @@ function submitLogin() {
 
         complexArray.push({
           firstName: data.info.name,
+          email:data.info.email,
           role:data.info.role,
         });
 
