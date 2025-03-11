@@ -228,7 +228,7 @@ function changeAmountButton(item, operator) {
 /**
  *update amount in stock
  */
- function updateCartAmount(productId, amount) {
+function updateCartAmount(productId, amount) {
   const currentCart = getCurrentCart();
   const product = currentCart.find((item) => item.id === productId);
   if (product) {
@@ -269,32 +269,28 @@ function updateItemAndTotalPrices(item, operator) {
 }
 
 async function getItemsFromCart() {
-  // const items = JSON.parse(localStorage.getItem("currentCart"));
   let arr = [];
   try {
-    // const response = await fetch("http://127.0.0.1:8081/user/cart", {
-    //   method: "GET",
-    //   credentials: "include", // שולח cookies לשרת
-    // });
-
-    // const mktFavorite = await response.json();
     const mktFavorite = await getCurrentCart();
+    console.log(mktFavorite);
 
     const res = await fetch(`http://127.0.0.1:3000/products`);
     const products = await res.json();
 
     if (mktFavorite.length !== 0) {
       for (let index = 0; index < mktFavorite.length; index++) {
-        arr.push({
-          ...products.data.filter((p) => p.mkt === mktFavorite[index].mkt)[0],
-          amount: mktFavorite[index].amount,
-        });
+        let product = products.data.filter(
+          (p) => p.mkt === mktFavorite[index].mkt
+        )[0];
+        product.amount = mktFavorite[index].amount;
+        arr.push(product);
       }
     }
   } catch (error) {
     console.log(error);
   }
 
+  console.log(arr);
   const result = [];
   if (arr) {
     arr.forEach((item) => {

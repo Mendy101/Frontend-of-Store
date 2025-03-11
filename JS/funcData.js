@@ -305,6 +305,7 @@ const isStock = async (mkt) => {
     );
 
     const amount = await response.json();
+    console.log("amount: ", amount, "\nmkt: ", amount[mkt]);
     return amount[mkt] > 0;
   } catch (error) {
     console.log(error);
