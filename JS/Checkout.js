@@ -11,28 +11,49 @@ async function renderItems() {
   }
 
   console.log(items);
-  items.forEach((item) => {
+
+  for (let i = 0; i < items.length; i++) {
     const row = itemRow();
     const box = itemBox();
-    totalPrice += item.price * item.amount;
+    totalPrice += items[i].price * items[i].amount;
 
     row.appendChild(box);
     row.appendChild(divider()); ////
 
     const itemProperties = [
-      itemImg(`../Images/${item.imageSrc}`),
-      itemNameAndPrice(item),
-      increaseAmount(item),
-      itemAmount(item),
-      decreaseAmount(item),
-      itemTrashIcon(item),
+      itemImg(`../Images/${items[i].imageSrc}`),
+      itemNameAndPrice(items[i]),
+      increaseAmount(items[i]),
+      itemAmount(items[i]),
+      decreaseAmount(items[i]),
+      itemTrashIcon(items[i]),
     ];
 
     itemProperties.forEach((property) => box.appendChild(property));
     itemList.appendChild(row);
-  });
+  }
+  // items.forEach((item) => {
+  //   const row = itemRow();
+  //   const box = itemBox();
+  //   totalPrice += item.price * item.amount;
 
-  debugger;
+  //   row.appendChild(box);
+  //   row.appendChild(divider()); ////
+
+  //   const itemProperties = [
+  //     itemImg(`../Images/${item.imageSrc}`),
+  //     itemNameAndPrice(item),
+  //     increaseAmount(item),
+  //     itemAmount(item),
+  //     decreaseAmount(item),
+  //     itemTrashIcon(item),
+  //   ];
+
+  //   itemProperties.forEach((property) => box.appendChild(property));
+  //   itemList.appendChild(row);
+  // });
+
+  // debugger;
   renderTotalPrice();
 }
 
@@ -204,6 +225,27 @@ function changeAmountButton(item, operator) {
   return button;
 }
 
+/**
+ *update amount in stock
+ */
+ function updateCartAmount(productId, amount) {
+  const currentCart = getCurrentCart();
+  const product = currentCart.find((item) => item.id === productId);
+  if (product) {
+    // product.amount = product.amount + amount;
+    const updatedAmount = product.amount + amount;
+    if (updatedAmount < 0) {
+      alert(
+        `Unable to complete the request. product inventory is ${product.amount}`
+      );
+      throw new Error("Error: Amount cannot go below zero");
+    }
+
+    product.amount = updatedAmount;
+    setCurrentCart(currentCart); //update cart
+  }
+}
+
 function updateItemAndTotalPrices(item, operator) {
   if (operator === "+") {
     if (!isAmountAvailable(item.id)) {
@@ -230,38 +272,33 @@ async function getItemsFromCart() {
   // const items = JSON.parse(localStorage.getItem("currentCart"));
   let arr = [];
   try {
-    const response = await fetch("http://127.0.0.1:8081/user/cart", {
-      method: "GET",
-      credentials: "include", // שולח cookies לשרת
-    });
-    const res = await response.json();
+    // const response = await fetch("http://127.0.0.1:8081/user/cart", {
+    //   method: "GET",
+    //   credentials: "include", // שולח cookies לשרת
+    // });
 
-    try {
-      const response = await fetch("http://127.0.0.1:8081/user/cart", {
-        method: "GET",
-        credentials: "include", // שולח cookies לשרת
-      });
+    // const mktFavorite = await response.json();
+    const mktFavorite = await getCurrentCart();
 
-      const mktFavorite = await response.json();
+    const res = await fetch(`http://127.0.0.1:3000/products`);
+    const products = await res.json();
 
-      const res = await fetch(`http://127.0.0.1:3000/products`);
-      const products = await res.json();
-
-      if (mktFavorite.info.length !== 0) {
-        for (let index = 0; index < mktFavorite.info.length; index++) {
-          arr.push(
-            products.data.filter((p) => p.mkt === mktFavorite.info[index])[0]
-          );
-        }
+    if (mktFavorite.length !== 0) {
+      for (let index = 0; index < mktFavorite.length; index++) {
+        arr.push({
+          ...products.data.filter((p) => p.mkt === mktFavorite[index].mkt)[0],
+          amount: mktFavorite[index].amount,
+        });
       }
-    } catch (error) {
-      console.log(error);
     }
-  } catch (err) {}
+  } catch (error) {
+    console.log(error);
+  }
 
   const result = [];
   if (arr) {
     arr.forEach((item) => {
+      console.log(item);
       result.push({
         id: item.mkt,
         name: item.name,

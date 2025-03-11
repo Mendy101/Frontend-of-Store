@@ -5,63 +5,48 @@ const favoriteContainer = document.getElementById("favoriteItems");
  * display products in favorite
  */
 async function displayFavoriteItems() {
+  let mktFavorite = null;
+  let products = null;
   try {
-    const response = await fetch("http://127.0.0.1:8081/user/favorites", {
-      method: "GET",
-      credentials: "include", // שולח cookies לשרת
-    });
-
-    const mktFavorite = await response.json();
-
+    mktFavorite = await getFavorites();
+    console.log(mktFavorite);
     const res = await fetch(`http://127.0.0.1:3000/products`);
-    const products = await res.json();
+    products = await res.json();
+  } catch (err) {
+    console.log(err);
+  }
 
-    if (mktFavorite.info.length === 0)
-      //not exist favorites
-      document.getElementById("header").innerHTML = "No Favorites Yet...";
-    else {
-      let arr = [];
-      for (let index = 0; index < mktFavorite.info.length; index++) {
-        arr.push(
-          products.data.filter((p) => p.mkt === mktFavorite.info[index])
-        );
-      }
-
-      arr.forEach((item) => {
-        const itemElement = document.createElement("div");
-        itemElement.classList.add("col-md-2", "mb-2");
-
-        itemElement.innerHTML = innerHTMLOfFavorites(item[0]);
-        favoriteContainer.appendChild(itemElement); //display item
-      });
+  if (mktFavorite.info.length === 0)
+    //not exist favorites
+    document.getElementById("header").innerHTML = "No Favorites Yet...";
+  else {
+    let arr = [];
+    for (let index = 0; index < mktFavorite.info.length; index++) {
+      arr.push(
+        products.data.filter((p) => p.mkt === mktFavorite.info[index])[0]
+      );
     }
-  } catch (error) {
-    console.log(error);
+
+    arr.forEach((item) => {
+      const itemElement = document.createElement("div");
+      itemElement.classList.add("col-md-2", "mb-2");
+
+      itemElement.innerHTML = innerHTMLOfFavorites(item);
+      favoriteContainer.appendChild(itemElement); //display item
+    });
   }
 }
 
 /**
  * add element to cart
  */
-
-function addToCartFromFavorites() {
+async function addToCartFromFavorites() {
   const cardBody = event.target.closest(".card-body"); //get the element
-
   const idElement = cardBody.querySelector(".id-price"); //get id
-
-  const id = parseInt(idElement.textContent.split(":")[1]);
-
-  
-
-  //------------ find array and add to cart ------------//
-  if (parseInt(id / 10000) == 5)
-    addToCart(computers_arr.find((item) => item.id == id));
-  if (parseInt(id / 10000) == 4)
-    addToCart(smartphones_arr.find((item) => item.id == id));
-  if (parseInt(id / 10000) == 3)
-    addToCart(props_arr.find((item) => item.id == id));
-  if (parseInt(id / 10000) == 2)
-    addToCart(tablets_arr.find((item) => item.id == id));
+  const mkt = parseInt(idElement.textContent.split(":")[1]);
+  try {
+    await addToCart(mkt);
+  } catch (err) {}
 }
 
 /**
@@ -72,29 +57,14 @@ async function removeFromFavorites() {
   const idElement = cardBody.querySelector(".id-price"); //get id
   const mkt = parseInt(idElement.textContent.split(":")[1]); //casting to number
 
+  console.log(mkt);
   try {
-    const response2 = await fetch(
-      "http://127.0.0.1:8081/user/removeFromFavorite",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mkt: mkt }),
-        credentials: "include",
-      }
-    );
-    const res2 = await response2.json();
-    console.log(res2);
+    await removeFavorite(mkt);
   } catch (err) {
     console.log(err);
   }
 
-
-
-  // favorites_arr = favorites_arr.filter((item) => item.id != id);
-
-  // localStorage.setItem("favorites_arr", JSON.stringify(favorites_arr));
-
-  alert("Product removed from cart successfully.");
+  alert("Product removed from favorite successfully.");
   favoriteContainer.innerHTML = "";
   displayFavoriteItems(); //display element
 }

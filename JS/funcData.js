@@ -132,7 +132,7 @@ function addToBox(_json, _id) {
 
   //create button in the box that add  elements to cart
   mainBox.querySelector(".cartButton").addEventListener("click", function () {
-    addToCart(_json);
+    addToCart(_json.mkt);
   });
 }
 
@@ -197,14 +197,7 @@ function addBanner(id) {
 
 ///------ Favorite API ------///
 
-// let favorites_arr = JSON.parse(localStorage.getItem("favorites_arr")) || [];
-
-/**
- * add to favorites
- * @param {object} product the product favorite
- * @param {*} buttonElement
- */
-async function favorites(product, buttonElement) {
+const setFavorite = async (product) => {
   try {
     const response = await fetch("http://127.0.0.1:8081/user/addFavorite", {
       method: "POST",
@@ -213,24 +206,54 @@ async function favorites(product, buttonElement) {
       credentials: "include",
     });
     const res = await response.json();
-    console.log(res);
+    return res;
+  } catch (err) {
+    return null;
+  }
+};
 
-    if (res.success) {
+const removeFavorite = async (mkt) => {
+  try {
+    const response = await fetch(
+      "http://127.0.0.1:8081/user/removeFromFavorite",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mkt: mkt }),
+        credentials: "include",
+      }
+    );
+    const res = await response.json();
+    console.log(res);
+  } catch (err) {}
+};
+
+const getFavorites = async () => {
+  try {
+    const response = await fetch("http://127.0.0.1:8081/user/favorites", {
+      method: "GET",
+      credentials: "include", // שולח cookies לשרת
+    });
+    const res = await response.json();
+    return res;
+  } catch (err) {
+    return null;
+  }
+};
+
+/**
+ * add to favorites
+ * @param {object} product the product favorite
+ * @param {*} buttonElement
+ */
+async function favorites(product, buttonElement) {
+  try {
+    if (buttonElement.style.color !== "red") {
+      await setFavorite(product);
       alert("Add to favorites successfully");
       buttonElement.style.color = "red";
     } else {
-      const response2 = await fetch(
-        "http://127.0.0.1:8081/user/removeFromFavorite",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mkt: product.mkt }),
-          credentials: "include",
-        }
-      );
-      const res2 = await response2.json();
-      console.log(res2);
-
+      await removeFavorite(product.mkt);
       alert("remove from favorites successfully");
       buttonElement.style.color = "black";
     }
@@ -243,14 +266,10 @@ async function favorites(product, buttonElement) {
  * save the color of favorites icon
  */
 async function saveFavoritesInprintData() {
-  const response = await fetch("http://127.0.0.1:8081/user/favorites", {
-    method: "GET",
-    credentials: "include", // שולח cookies לשרת
-  });
-
-  const favorite = await response.json();
-
-  console.log(favorite);
+  let favorite = null;
+  try {
+    favorite = await getFavorites();
+  } catch (err) {}
 
   let favoriteMap = {}; //create map off favorite item
 
@@ -275,25 +294,59 @@ async function saveFavoritesInprintData() {
 }
 
 ///------ Cart API ------///
+const isStock = async (mkt) => {
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:3000/products/stocks?mkts=${mkt}`,
+      {
+        method: "GET",
+        // credentials: "include",
+      }
+    );
 
-// /**
-//  * update cart
-//  * @param {localStorage} cart all element in cart
-//  */
-const setCurrentCart = async (product) => {
+    const amount = await response.json();
+    return amount[mkt] > 0;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+/**
+ * update cart
+ * @param {localStorage} cart all element in cart
+ */
+const setCurrentCart = async (mkt) => {
   try {
     const response = await fetch("http://127.0.0.1:8081/user/addToCart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mkt: product.mkt }),
+      body: JSON.stringify({ mkt: mkt }),
+      credentials: "include",
+    });
+
+    const res = await response.json();
+    return res;
+  } catch (err) {
+    return null;
+  }
+};
+
+/**
+ * remove item from the cart
+ * @param {number} productId id of item
+ */
+async function removeFromCart(mkt) {
+  try {
+    const response = await fetch("http://127.0.0.1:8081/user/removeFromCart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mkt: mkt }),
       credentials: "include",
     });
     const res = await response.json();
     console.log(res.info);
   } catch (err) {}
-
-  // localStorage.setItem("currentCart", JSON.stringify(cart));
-};
+}
 
 const getCurrentCart = async () => {
   try {
@@ -302,99 +355,27 @@ const getCurrentCart = async () => {
       credentials: "include", // שולח cookies לשרת
     });
     const res = await response.json();
-    console.log(res.info);
     return res.info;
   } catch (err) {
     return null;
   }
-  // return JSON.parse(localStorage.getItem("currentCart")) || [];
 };
 
 /**
  * add to cart from inner page
  * @param {object} product the product favorite
  */
-function addToCart(product) {
-  let currentCart = getCurrentCart(); //get the cart
-  //if the product already exist
-  let foundInCart = false;
-  for (let index = 0; index < currentCart.length; index++) {
-    if (item[index] === product.id) {
-      foundInCart = true;
-      break;
-    }
-  }
-  // let foundInCart = currentCart.find((item) => item === product.id);
-  // const amountStock = getProductAmount(product.id) || 2;
-  const amountStock = 2;
-
-  if (amountStock === 0) {
-    alert("The item is not in stock");
-  } else if (!foundInCart) {
-    //add to cart
-    product["amount"] = 1; //add attribute to data
-    setCurrentCart(product); // =---------------
-    alert("Add to cart successfully");
-    updateStockAmount(product.id, -1);
+async function addToCart(mkt) {
+  const isInStock = await isStock(mkt);
+  console.log("is in stock: ", isInStock);
+  if (isInStock) {
+    const res = await setCurrentCart(mkt);
+    console.log(res);
+    if (res.success) alert("Add to cart successfully");
   } else {
-    updateCartAmount(product.id, 1);
-    updateStockAmount(product.id, -1);
-    alert("Adding another item");
+    alert("The item is not in stock");
   }
 }
-
-/**
- * remove item from the cart
- * @param {number} productId id of item
- */
-async function removeFromCart(productId) {
-  // const data = getCurrentCart();  try{
-  try {
-    const response = await fetch("http://127.0.0.1:8081/user/removeFromCart", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mkt: product.mkt }),
-      credentials: "include",
-    });
-    const res = await response.json();
-    console.log(res.info);
-  } catch (err) {}
-
-  // const newCart = data.filter((item) => item.id !== productId);
-
-  // Update amount
-  // setCurrentCart(newCart);
-}
-
-/**
- *update amount in stock
- */
-function updateCartAmount(productId, amount) {
-  const currentCart = getCurrentCart();
-  const product = currentCart.find((item) => item.id === productId);
-  if (product) {
-    // product.amount = product.amount + amount;
-    const updatedAmount = product.amount + amount;
-    if (updatedAmount < 0) {
-      alert(
-        `Unable to complete the request. product inventory is ${product.amount}`
-      );
-      throw new Error("Error: Amount cannot go below zero");
-    }
-
-    product.amount = updatedAmount;
-    setCurrentCart(currentCart); //update cart
-  }
-}
-
-//  function fetchDataFromServer(category, id) {
-//   fetch(`http://127.0.0.1:3000/products/categories?categories=${category}`)
-//     .then((response) => response.json())
-//     .then((smartphones) => {
-//       console.log(smartphones);
-//       myOnload(smartphones);
-//     })
-//     .catch((error) => console.error("Error:", error));
 
 async function fetchDataFromServer(category, id) {
   try {
@@ -402,7 +383,7 @@ async function fetchDataFromServer(category, id) {
       `http://127.0.0.1:3000/products/categories?categories=${category}`
     );
     const res = await response.json();
-    myOnload(res);
+    myOnload(res, id);
     console.log(res);
     if (res.data.smartphones) return res?.data.smartphones;
     if (res?.data.accessories) return res?.data.accessories;
@@ -412,19 +393,14 @@ async function fetchDataFromServer(category, id) {
     console.error("Error:", error);
     return [];
   }
-  function myOnload(response) {
-    createTopLine(); //create the top line
-    let arr = response.data;
-    if (arr.smartphones) printData(arr.smartphones, id); //create element in page
-    if (arr.accessories) printData(arr.accessories, id); //create element in page
-    if (arr.tablets) printData(arr.tablets, id); //create element in page
-    if (arr.laptops) printData(arr.laptops, id); //create element in page
+}
 
-    //create button for price filter
-    //   document.getElementById("filterIn").innerHTML = `
-    // <button onclick="filter(smartphones_arr,'Smartphone',389,5429)" class="mt-2">Filter</button>`;
-    //   createPlaceholder(389, 5429);
-
-    createListOfElement();
-  }
+function myOnload(response, id) {
+  createTopLine(); //create the top line
+  let arr = response.data;
+  if (arr.smartphones) printData(arr.smartphones, id); //create element in page
+  if (arr.accessories) printData(arr.accessories, id); //create element in page
+  if (arr.tablets) printData(arr.tablets, id); //create element in page
+  if (arr.laptops) printData(arr.laptops, id); //create element in page
+  createListOfElement();
 }
