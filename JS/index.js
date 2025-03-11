@@ -6,7 +6,12 @@
 //   },
 // ];
 
+
+
+
 let currentIndex = 0;
+// let data = getData()
+// console.log(data)
 
 // Function to get random items from a category array
 function getRandomProducts(categoryArray, numberOfItems) {
@@ -14,10 +19,12 @@ function getRandomProducts(categoryArray, numberOfItems) {
   return shuffledArray.slice(0, numberOfItems);
 }
 
+
 // Function to display random products on the homepage
 function displayRandomProducts() {
   // Get random products from each category
-  const randomSmartphones = getRandomProducts(allProducts.smartphones_arr, 4);
+   const randomSmartphones = getRandomProducts(allProducts.smartphones_arr, 4);
+ // const randomSmartphones = getRandomProducts(smartphones_arr, 4);
   const randomTablets = getRandomProducts(allProducts.tablets_arr, 4);
   const randomComputers = getRandomProducts(allProducts.computers_arr, 4);
   const randomProps = getRandomProducts(allProducts.props_arr, 4);
@@ -29,6 +36,8 @@ function displayRandomProducts() {
   randomProps.forEach((product) => addToBox(product, "Props"));
   saveFavoritesInprintData();
 }
+
+
 
 // Call the function to display products when the page loads
 window.onload = function () {

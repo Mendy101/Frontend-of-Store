@@ -1,8 +1,10 @@
+let complexArray = [];
+
 function submitLogin() {
   const email = document.getElementById("em").value;
   const password = document.getElementById("pw").value;
 
-  const userData = {
+  const user = {
     email: email,
     password: password,
   };
@@ -12,14 +14,26 @@ function submitLogin() {
     headers: {
       "Content-Type": "application/json",
     },
-    credentials: "include",
-    body: JSON.stringify(userData),
+    body: JSON.stringify(user),
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
+      console.log(data.info);
       if (data.success) {
         alert("Login successful!");
+        //----------------------------------------------
+
+        complexArray.push({
+          firstName: data.info.name,
+          role:data.info.role,
+        });
+
+        console.log(complexArray)
+        
+        localStorage.setItem(
+              "userData",
+              JSON.stringify(complexArray[complexArray.length - 1])
+            );
         window.location.href = "../HTML/Index.html"; // Redirect to dashboard or home page
       } else {
         alert("Failed to log in. Please check your credentials.");
