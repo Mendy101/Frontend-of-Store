@@ -1,33 +1,44 @@
-// const linkConfigs = [
-//   { href: "Sales.html", img: "../Images/index/sale.png" },
-//   {
-//     href: "https://www.calcalist.co.il/calcalistech/category/3778",
-//     img: "../Images/index/whats-new.jpg",
-//   },
-// ];
-
-
-
-
 let currentIndex = 0;
-// let data = getData()
-// console.log(data)
-
-// Function to get random items from a category array
 function getRandomProducts(categoryArray, numberOfItems) {
   const shuffledArray = [...categoryArray].sort(() => 0.5 - Math.random());
   return shuffledArray.slice(0, numberOfItems);
 }
 
-
 // Function to display random products on the homepage
-function displayRandomProducts() {
-  // Get random products from each category
-   const randomSmartphones = getRandomProducts(allProducts.smartphones_arr, 4);
- // const randomSmartphones = getRandomProducts(smartphones_arr, 4);
-  const randomTablets = getRandomProducts(allProducts.tablets_arr, 4);
-  const randomComputers = getRandomProducts(allProducts.computers_arr, 4);
-  const randomProps = getRandomProducts(allProducts.props_arr, 4);
+async function displayRandomProducts() {
+  let productSmartphones, productProps, productComputers, productTablets;
+  try {
+    let res = await fetch(
+      `http://127.0.0.1:3000/products/categories?categories=tablets`
+    );
+    productTablets = await res.json();
+
+    res = await fetch(
+      `http://127.0.0.1:3000/products/categories?categories=smartphones`
+    );
+    productSmartphones = await res.json();
+
+    res = await fetch(
+      `http://127.0.0.1:3000/products/categories?categories=accessories`
+    );
+    productProps = await res.json();
+
+    res = await fetch(
+      `http://127.0.0.1:3000/products/categories?categories=laptops`
+    );
+    productComputers = await res.json();
+  } catch (err) {
+    console.log(err);
+  }
+
+  console.log(productTablets.data.tablets);
+  const randomSmartphones = getRandomProducts(
+    productSmartphones.data.smartphones,
+    4
+  );
+  const randomTablets = getRandomProducts(productTablets.data.tablets, 4);
+  const randomComputers = getRandomProducts(productComputers.data.laptops, 4);
+  const randomProps = getRandomProducts(productProps.data.accessories, 4);
 
   // Display products on the homepage using the addToBox function
   randomSmartphones.forEach((product) => addToBox(product, "Smartphones"));
@@ -36,8 +47,6 @@ function displayRandomProducts() {
   randomProps.forEach((product) => addToBox(product, "Props"));
   saveFavoritesInprintData();
 }
-
-
 
 // Call the function to display products when the page loads
 window.onload = function () {
