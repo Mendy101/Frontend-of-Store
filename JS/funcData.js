@@ -390,7 +390,7 @@ async function addToCart(mkt) {
 async function fetchDataFromServer(category, id) {
   try {
     const response = await fetch(
-      `http://127.0.0.1:3000/products/categories?categories=${category}`
+      `http://127.0.0.1:3000/products/categories?categories=${category}&isInStock=true`
     );
     const res = await response.json();
     myOnload(res, id);
