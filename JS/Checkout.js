@@ -226,26 +226,27 @@ async function updateItemAndTotalPrices(item, operator) {
 async function getItemsFromCart() {
   let arr = [];
   try {
-    const mktFavorite = await getCurrentCart();
-    console.log(mktFavorite);
+    const mktCart = await getCurrentCart();
+    console.log(mktCart);
 
-    const res = await fetch(`http://127.0.0.1:3000/products`);
-    const products = await res.json();
+    let mkt = [];
+    mktCart.forEach((p) => mkt.push(p.mkt));
 
-    if (mktFavorite.length !== 0) {
-      for (let index = 0; index < mktFavorite.length; index++) {
-        let product = products.data.filter(
-          (p) => p.mkt === mktFavorite[index].mkt
-        )[0];
-        product.amount = mktFavorite[index].amount;
-        arr.push(product);
-      }
+    const res = await fetch(`http://localhost:3000/products/mkts?mkts=${mkt}`);
+    products = await res.json();
+
+    if (mktCart.length !== 0) {
+      let i = 0;
+      Object.entries(products.data).forEach(([id, item]) => {
+        item.amount = mktCart[i].amount;
+        item.mkt = mktCart[i++].mkt;
+        arr.push(item);
+      });
     }
   } catch (error) {
     console.log(error);
   }
 
-  console.log(arr);
   const result = [];
   if (arr) {
     arr.forEach((item) => {

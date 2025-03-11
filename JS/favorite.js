@@ -10,24 +10,21 @@ async function displayFavoriteItems() {
   try {
     mktFavorite = await getFavorites();
     console.log(mktFavorite);
-    const res = await fetch(`http://127.0.0.1:3000/products`);
+
+    const res = await fetch(
+      `http://localhost:3000/products/mkts?mkts=${mktFavorite.info}`
+    );
     products = await res.json();
   } catch (err) {
     console.log(err);
   }
 
-  if (mktFavorite.info.length === 0)
-    //not exist favorites
+  console.log(products.data);
+  if (products.data.length == 0)
     document.getElementById("header").innerHTML = "No Favorites Yet...";
   else {
-    let arr = [];
-    for (let index = 0; index < mktFavorite.info.length; index++) {
-      arr.push(
-        products.data.filter((p) => p.mkt === mktFavorite.info[index])[0]
-      );
-    }
-
-    arr.forEach((item) => {
+    Object.entries(products.data).forEach(([id, item]) => {
+      console.log(item);
       const itemElement = document.createElement("div");
       itemElement.classList.add("col-md-2", "mb-2");
 

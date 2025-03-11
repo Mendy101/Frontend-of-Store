@@ -7,7 +7,7 @@
  * At the moment, needed for the navbar dropdown (or any other case)
  */
 function initializeDropdowns() {
-  var dropdowns = document.querySelectorAll('.dropdown-toggle');
+  var dropdowns = document.querySelectorAll(".dropdown-toggle");
   dropdowns.forEach(function (dropdown) {
     new bootstrap.Dropdown(dropdown);
   });
@@ -16,12 +16,12 @@ function initializeDropdowns() {
 // Load Bootstrap JS dynamically
 function loadBootstrapAndInitialize() {
   if (!window.bootstrap) {
-    const bootstrapScript = document.createElement('script');
+    const bootstrapScript = document.createElement("script");
     bootstrapScript.src =
-      'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js';
+      "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js";
     bootstrapScript.integrity =
-      'sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz';
-    bootstrapScript.crossOrigin = 'anonymous';
+      "sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz";
+    bootstrapScript.crossOrigin = "anonymous";
     bootstrapScript.onload = initializeDropdowns;
     document.head.appendChild(bootstrapScript);
   } else {
@@ -30,20 +30,22 @@ function loadBootstrapAndInitialize() {
 }
 
 // Initialize dropdowns when the DOM content is loaded
-document.addEventListener('DOMContentLoaded', loadBootstrapAndInitialize);
+document.addEventListener("DOMContentLoaded", loadBootstrapAndInitialize);
 
-  //--------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 async function getInventory() {
   try {
-    const response = await fetch(`http://127.0.0.1:3000/stock`, {
-      method: "GET", 
+    const response = await fetch(`http://localhost:3000/admin/products`, {
+      method: "GET",
       credentials: "include",
     });
-    return await response.json()
+    const res = await response.json();
+    console.log(res);
+    return res;
   } catch (error) {
-    console.error("Error:", error)
-    return []
+    console.error("Error:", error);
+    return [];
   }
 }
 
@@ -56,9 +58,9 @@ function updateStockAmount(productId, amount) {
     const updatedAmount = product.amount + amount;
     if (updatedAmount < 0) {
       alert(
-        `Unable to complete the request. product inventory is ${product.amount}`,
+        `Unable to complete the request. product inventory is ${product.amount}`
       );
-      throw new Error('Error: Amount cannot go below zero');
+      throw new Error("Error: Amount cannot go below zero");
     }
 
     product.amount = updatedAmount;
@@ -78,8 +80,7 @@ const getProductAmount = (productId) => {
 };
 
 function isAmountAvailable(itemId) {
-  const data =
-    JSON.parse(localStorage.getItem('inventory')) || [];
+  const data = JSON.parse(localStorage.getItem("inventory")) || [];
 
   let found = false;
   data.forEach((item) => {
