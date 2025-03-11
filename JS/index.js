@@ -8,37 +8,22 @@ function getRandomProducts(categoryArray, numberOfItems) {
 async function displayRandomProducts() {
   let productSmartphones, productProps, productComputers, productTablets;
   try {
-    let res = await fetch(
-      `http://127.0.0.1:3000/products/categories?categories=tablets`
+    const res = await fetch(
+      `http://127.0.0.1:3000/products/categories?categories=tablets,smartphones,accessories,laptops`
     );
-    productTablets = await res.json();
-
-    res = await fetch(
-      `http://127.0.0.1:3000/products/categories?categories=smartphones`
-    );
-    productSmartphones = await res.json();
-
-    res = await fetch(
-      `http://127.0.0.1:3000/products/categories?categories=accessories`
-    );
-    productProps = await res.json();
-
-    res = await fetch(
-      `http://127.0.0.1:3000/products/categories?categories=laptops`
-    );
-    productComputers = await res.json();
+    const products = (await res.json()).data;
+    productTablets = products["tablets"];
+    productSmartphones = products["smartphones"];
+    productProps = products["accessories"];
+    productComputers = products["laptops"];
   } catch (err) {
     console.log(err);
   }
 
-  console.log(productTablets.data.tablets);
-  const randomSmartphones = getRandomProducts(
-    productSmartphones.data.smartphones,
-    4
-  );
-  const randomTablets = getRandomProducts(productTablets.data.tablets, 4);
-  const randomComputers = getRandomProducts(productComputers.data.laptops, 4);
-  const randomProps = getRandomProducts(productProps.data.accessories, 4);
+  const randomSmartphones = getRandomProducts(productSmartphones, 4);
+  const randomTablets = getRandomProducts(productTablets, 4);
+  const randomComputers = getRandomProducts(productComputers, 4);
+  const randomProps = getRandomProducts(productProps, 4);
 
   // Display products on the homepage using the addToBox function
   randomSmartphones.forEach((product) => addToBox(product, "Smartphones"));
@@ -90,8 +75,3 @@ function startRandomImageSwitch() {
 }
 
 startRandomImageSwitch();
-
-// fetch("http://127.0.0.1:3000/products")
-//   .then((response) => response.json())
-//   .then((data) => console.log(data))
-//   .catch((error) => console.error("Error:", error));

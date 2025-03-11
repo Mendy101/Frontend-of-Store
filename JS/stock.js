@@ -27,34 +27,33 @@
 
 async function displayInventory() {
   try {
-    const stock = await getInventory(); 
+    const stock = await getInventory();
     console.log(stock);
-    const container = document.getElementById('inventory-container');
-    if (!container) return; 
+    const container = document.getElementById("inventory-container");
+    if (!container) return;
 
-    container.innerHTML = '';
+    container.innerHTML = "";
 
     if (stock.length === 0) {
-      container.innerHTML = '<p>Stock is empty.</p>';
+      container.innerHTML = "<p>Stock is empty.</p>";
       return;
     }
     stock.data.forEach((item) => {
-      const itemElement = document.createElement('div');
-      itemElement.classList.add('col-md-2', 'mb-2');
-    
+      const itemElement = document.createElement("div");
+      itemElement.classList.add("col-md-2", "mb-2");
+
       itemElement.innerHTML = `
         <div class="card h-100">
           <img src="../Images/${item.img}" class="card-img-top" alt="${item.name}">
           <div class="card-body">
             <h5 class="card-title">${item.name}</h5>
             <p class="card-text"><strong>ID:</strong> ${item.mkt}</p>
-            <p class="card-text"><strong>Available:</strong> ${item.amount}</p>
+            <p class="card-text"><strong>Available:</strong> ${item.stock}</p>
           </div>
         </div>
       `;
       container.appendChild(itemElement);
     });
-    
   } catch (error) {
     console.error("Error loading inventory:", error);
   }
