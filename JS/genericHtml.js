@@ -151,7 +151,7 @@ function buildBox(_json) {
   </div>
      
  <div class="details_id">
- <div class="id m-1"> ID:${_json.mkt}</div>
+ <div class="id mkt m-1"> ID:${_json.mkt}</div>
   <p class="details col-md-10 m-1 mt-0">${_json.description}</p>
  </div>
 

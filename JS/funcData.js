@@ -132,7 +132,7 @@ function addToBox(_json, _id) {
 
   //create button in the box that add  elements to cart
   mainBox.querySelector(".cartButton").addEventListener("click", function () {
-    addToCart(_json);
+    addToCart(_json.mkt);
   });
 }
 
@@ -196,44 +196,85 @@ function addBanner(id) {
 }
 
 ///------ Favorite API ------///
+const setFavorite = async (product) => {
+  try {
+    const response = await fetch("http://127.0.0.1:8081/user/addFavorite", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mkt: product.mkt }),
+      credentials: "include",
+    });
+    const res = await response.json();
+    return res;
+  } catch (err) {
+    return null;
+  }
+};
 
-let favorites_arr = JSON.parse(localStorage.getItem("favorites_arr")) || [];
+const removeFavorite = async (mkt) => {
+  try {
+    const response = await fetch(
+      "http://127.0.0.1:8081/user/removeFromFavorite",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mkt: mkt }),
+        credentials: "include",
+      }
+    );
+    const res = await response.json();
+    console.log(res);
+  } catch (err) {}
+};
+
+const getFavorites = async () => {
+  try {
+    const response = await fetch("http://127.0.0.1:8081/user/favorites", {
+      method: "GET",
+      credentials: "include", // שולח cookies לשרת
+    });
+    const res = await response.json();
+    return res;
+  } catch (err) {
+    return null;
+  }
+};
+
 /**
  * add to favorites
  * @param {object} product the product favorite
  * @param {*} buttonElement
  */
-function favorites(product, buttonElement) {
-  //if the product already exist
-  let exists = favorites_arr.some((item) => item.id === product.id);
-
-  if (!exists) {
-    //add to favorites
-    favorites_arr.push(product);
-    alert("Add to favorites successfully");
-    buttonElement.style.color = "red";
-  } else {
-    // remove from favorites
-    favorites_arr = favorites_arr.filter(
-      (favorites_arr) => favorites_arr.id !== product.id
-    );
-
-    alert("remove from favorites successfully");
-    buttonElement.style.color = "black";
+async function favorites(product, buttonElement) {
+  try {
+    if (buttonElement.style.color !== "red") {
+      await setFavorite(product);
+      alert("Add to favorites successfully");
+      buttonElement.style.color = "red";
+    } else {
+      await removeFavorite(product.mkt);
+      alert("remove from favorites successfully");
+      buttonElement.style.color = "black";
+    }
+  } catch (error) {
+    console.error("Error:", error);
   }
-
-  localStorage.setItem("favorites_arr", JSON.stringify(favorites_arr));
 }
 
 /**
  * save the color of favorites icon
  */
-function saveFavoritesInprintData() {
+async function saveFavoritesInprintData() {
+  let favorite = null;
+  try {
+    favorite = await getFavorites();
+  } catch (err) {}
+
   let favoriteMap = {}; //create map off favorite item
 
-  favorites_arr.forEach((favorite) => {
+  favorite.info.forEach((mkt) => {
     //init items in map
-    favoriteMap[favorite.id] = true;
+    favoriteMap[mkt] = true;
   });
 
   let productElements = document.querySelectorAll(".mainBox"); //get all element in page
@@ -252,87 +293,99 @@ function saveFavoritesInprintData() {
 }
 
 ///------ Cart API ------///
+const isStock = async (mkt, wantAmount = 0) => {
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:3000/products/stocks?mkts=${mkt}`,
+      {
+        method: "GET",
+        // credentials: "include",
+      }
+    );
+
+    const amount = await response.json();
+    console.log("mkt: ", amount[mkt], "\nwantAmount: ", wantAmount);
+    return amount[mkt] > wantAmount;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 /**
  * update cart
  * @param {localStorage} cart all element in cart
  */
-const setCurrentCart = (cart) => {
-  localStorage.setItem("currentCart", JSON.stringify(cart));
+const setCurrentCart = async (mkt) => {
+  try {
+    const response = await fetch("http://127.0.0.1:8081/user/addToCart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mkt: mkt }),
+      credentials: "include",
+    });
+
+    const res = await response.json();
+    return res;
+  } catch (err) {
+    return null;
+  }
 };
 
-const getCurrentCart = () => {
-  return JSON.parse(localStorage.getItem("currentCart")) || [];
+/**
+ * remove item from the cart
+ * @param {number} productId id of item
+ */
+async function removeFromCart(mkt, rm = null) {
+  try {
+    const response = await fetch("http://127.0.0.1:8081/user/removeFromCart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mkt, rm }),
+      credentials: "include",
+    });
+    const res = await response.json();
+    console.log(res.info);
+  } catch (err) {}
+}
+
+const getCurrentCart = async () => {
+  try {
+    const response = await fetch("http://127.0.0.1:8081/user/cart", {
+      method: "GET",
+      credentials: "include", // שולח cookies לשרת
+    });
+    const res = await response.json();
+    return res.info;
+  } catch (err) {
+    return null;
+  }
 };
 
 /**
  * add to cart from inner page
  * @param {object} product the product favorite
  */
-function addToCart(product) {
-  let currentCart = getCurrentCart(); //get the cart
-  //if the product already exist
-  let foundInCart = currentCart.find((item) => item.id === product.id);
-  const amountStock = getProductAmount(product.id);
+async function addToCart(mkt) {
+  try {
+    const cart = await getCurrentCart();
+    const product = cart.filter((p) => p.mkt == mkt)[0];
 
-  if (amountStock === 0) {
-    alert("The item is not in stock");
-  } else if (!foundInCart) {
-    //add to cart
-    product["amount"] = 1; //add attribute to data
-    currentCart.push(product);
-    setCurrentCart(currentCart); // =---------------
-    alert("Add to cart successfully");
-    updateStockAmount(product.id, -1);
-  } else {
-    updateCartAmount(product.id, 1);
-    updateStockAmount(product.id, -1);
-    alert("Adding another item");
-  }
-}
+    let isInStock = false;
+    if (product) isInStock = await isStock(mkt, product.amount);
+    else isInStock = await isStock(mkt, 0);
 
-/**
- * remove item from the cart
- * @param {number} productId id of item
- */
-function removeFromCart(productId) {
-  const data = getCurrentCart();
-
-  const newCart = data.filter((item) => item.id !== productId);
-
-  // Update amount
-  setCurrentCart(newCart);
-}
-
-/**
- *update amount in stock
- */
-function updateCartAmount(productId, amount) {
-  const currentCart = getCurrentCart();
-  const product = currentCart.find((item) => item.id === productId);
-  if (product) {
-    // product.amount = product.amount + amount;
-    const updatedAmount = product.amount + amount;
-    if (updatedAmount < 0) {
+    console.log("is in stock: ", isInStock);
+    if (isInStock) {
+      const res = await setCurrentCart(mkt);
+      console.log(res);
+      if (res.success) alert("Add to cart successfully");
+    } else {
       alert(
-        `Unable to complete the request. product inventory is ${product.amount}`
+        "More from this item is not available at the moment. Please check again later"
       );
-      throw new Error("Error: Amount cannot go below zero");
     }
-
-    product.amount = updatedAmount;
-    setCurrentCart(currentCart); //update cart
-  }
+  } catch (err) {}
 }
-
-//  function fetchDataFromServer(category, id) {
-//   fetch(`http://127.0.0.1:3000/products/categories?categories=${category}`)
-//     .then((response) => response.json())
-//     .then((smartphones) => {
-//       console.log(smartphones);
-//       myOnload(smartphones);
-//     })
-//     .catch((error) => console.error("Error:", error));
 
 async function fetchDataFromServer(category, id) {
   try {
@@ -340,29 +393,24 @@ async function fetchDataFromServer(category, id) {
       `http://127.0.0.1:3000/products/categories?categories=${category}`
     );
     const res = await response.json();
-    myOnload(res);
-    // console.log(res?.data.smartphones);
+    myOnload(res, id);
+    console.log(res);
     if (res.data.smartphones) return res?.data.smartphones;
     if (res?.data.accessories) return res?.data.accessories;
-    if ( res?.data.tablets) return res?.data.tablets;
+    if (res?.data.tablets) return res?.data.tablets;
     if (res?.data.laptops) return res?.data.laptops;
   } catch (error) {
     console.error("Error:", error);
     return [];
   }
-  function myOnload(response) {
-    createTopLine(); //create the top line
-    let arr = response.data;
-    if (arr.smartphones) printData(arr.smartphones, id); //create element in page
-    if (arr.accessories) printData(arr.accessories, id); //create element in page
-    if (arr.tablets) printData(arr.tablets, id); //create element in page
-    if (arr.laptops) printData(arr.laptops, id); //create element in page
+}
 
-    //create button for price filter
-  //   document.getElementById("filterIn").innerHTML = `
-  // <button onclick="filter(smartphones_arr,'Smartphone',389,5429)" class="mt-2">Filter</button>`;
-  //   createPlaceholder(389, 5429);
-
-    createListOfElement();
-  }
+function myOnload(response, id) {
+  createTopLine(); //create the top line
+  let arr = response.data;
+  if (arr.smartphones) printData(arr.smartphones, id); //create element in page
+  if (arr.accessories) printData(arr.accessories, id); //create element in page
+  if (arr.tablets) printData(arr.tablets, id); //create element in page
+  if (arr.laptops) printData(arr.laptops, id); //create element in page
+  createListOfElement();
 }

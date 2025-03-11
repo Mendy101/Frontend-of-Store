@@ -1,17 +1,35 @@
-favorites_arr = JSON.parse(localStorage.getItem('favorites_arr')) || []; //get favorite items
-const favoriteContainer = document.getElementById('favoriteItems');
+// favorites_arr = JSON.parse(localStorage.getItem('favorites_arr')) || []; //get favorite items
+const favoriteContainer = document.getElementById("favoriteItems");
 
 /**
  * display products in favorite
  */
-function displayFavoriteItems() {
-  if (favorites_arr.length === 0)
+async function displayFavoriteItems() {
+  let mktFavorite = null;
+  let products = null;
+  try {
+    mktFavorite = await getFavorites();
+    console.log(mktFavorite);
+    const res = await fetch(`http://127.0.0.1:3000/products`);
+    products = await res.json();
+  } catch (err) {
+    console.log(err);
+  }
+
+  if (mktFavorite.info.length === 0)
     //not exist favorites
-    document.getElementById('header').innerHTML = 'No Favorites Yet...';
+    document.getElementById("header").innerHTML = "No Favorites Yet...";
   else {
-    favorites_arr.forEach((item) => {
-      const itemElement = document.createElement('div');
-      itemElement.classList.add('col-md-2', 'mb-2');
+    let arr = [];
+    for (let index = 0; index < mktFavorite.info.length; index++) {
+      arr.push(
+        products.data.filter((p) => p.mkt === mktFavorite.info[index])[0]
+      );
+    }
+
+    arr.forEach((item) => {
+      const itemElement = document.createElement("div");
+      itemElement.classList.add("col-md-2", "mb-2");
 
       itemElement.innerHTML = innerHTMLOfFavorites(item);
       favoriteContainer.appendChild(itemElement); //display item
@@ -22,39 +40,32 @@ function displayFavoriteItems() {
 /**
  * add element to cart
  */
-
-function addToCartFromFavorites() {
-  const cardBody = event.target.closest('.card-body'); //get the element
-
-  const idElement = cardBody.querySelector('.id-price'); //get id
-
-  const id = parseInt(idElement.textContent.split(':')[1]);
-
-  //------------ find array and add to cart ------------//
-  if (parseInt(id / 10000) == 5)
-    addToCart(computers_arr.find((item) => item.id == id));
-  if (parseInt(id / 10000) == 4)
-    addToCart(smartphones_arr.find((item) => item.id == id));
-  if (parseInt(id / 10000) == 3)
-    addToCart(props_arr.find((item) => item.id == id));
-  if (parseInt(id / 10000) == 2)
-    addToCart(tablets_arr.find((item) => item.id == id));
+async function addToCartFromFavorites() {
+  const cardBody = event.target.closest(".card-body"); //get the element
+  const idElement = cardBody.querySelector(".id-price"); //get id
+  const mkt = parseInt(idElement.textContent.split(":")[1]);
+  try {
+    await addToCart(mkt);
+  } catch (err) {}
 }
 
 /**
  * remove element from favorites
  */
-function removeFromFavorites() {
-  const cardBody = event.target.closest('.card-body'); //get the element
-  const idElement = cardBody.querySelector('.id-price'); //get id
-  const id = parseInt(idElement.textContent.split(':')[1]); //casting to number
+async function removeFromFavorites() {
+  const cardBody = event.target.closest(".card-body"); //get the element
+  const idElement = cardBody.querySelector(".id-price"); //get id
+  const mkt = parseInt(idElement.textContent.split(":")[1]); //casting to number
 
-  favorites_arr = favorites_arr.filter((item) => item.id != id);
+  console.log(mkt);
+  try {
+    await removeFavorite(mkt);
+  } catch (err) {
+    console.log(err);
+  }
 
-  localStorage.setItem('favorites_arr', JSON.stringify(favorites_arr));
-
-  alert('Product removed from cart successfully.');
-  favoriteContainer.innerHTML = '';
+  alert("Product removed from favorite successfully.");
+  favoriteContainer.innerHTML = "";
   displayFavoriteItems(); //display element
 }
 
@@ -66,10 +77,10 @@ function removeFromFavorites() {
 function innerHTMLOfFavorites(item) {
   return `  
               <div class="card h-100">
-                <img src="../Images/${item.image}" class="card-img-top">
+                <img src="../Images/${item.img}" class="card-img-top">
                 <div class="card-body">
-                  <h5 class="card-title type">${item.type}</h5>
-                  <p class="card-text  id-price"><strong>ID:</strong> ${item.id}
+                  <h5 class="card-title type">${item.name}</h5>
+                  <p class="card-text  id-price"><strong>ID:</strong> ${item.mkt}
                                        <br>
                                        <strong>Price:</strong> ${item.price}
                   </p>

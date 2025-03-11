@@ -1,31 +1,35 @@
-let items = getItemsFromCart();
+let items = null;
 let totalPrice = 0;
 
-function renderItems() {
+async function renderItems() {
   const itemList = document.getElementById("item-list");
   itemList.innerHTML = "";
   totalPrice = 0;
 
-  items.forEach((item) => {
+  if (!items) {
+    items = await getItemsFromCart();
+  }
+
+  for (let i = 0; i < items.length; i++) {
     const row = itemRow();
     const box = itemBox();
-    totalPrice += item.price * item.amount;
+    totalPrice += items[i].price * items[i].amount;
 
     row.appendChild(box);
-    row.appendChild(divider());
+    row.appendChild(divider()); ////
 
     const itemProperties = [
-      itemImg(`../Images/${item.imageSrc}`),
-      itemNameAndPrice(item),
-      increaseAmount(item),
-      itemAmount(item),
-      decreaseAmount(item),
-      itemTrashIcon(item),
+      itemImg(`../Images/${items[i].imageSrc}`),
+      itemNameAndPrice(items[i]),
+      increaseAmount(items[i]),
+      itemAmount(items[i]),
+      decreaseAmount(items[i]),
+      itemTrashIcon(items[i]),
     ];
 
     itemProperties.forEach((property) => box.appendChild(property));
     itemList.appendChild(row);
-  });
+  }
 
   renderTotalPrice();
 }
@@ -44,11 +48,11 @@ function renderItemPriceAndAmount(item) {
 }
 
 function itemPriceId(item) {
-  return `item-price-${item.id}`;
+  return `item-price-${item.mkt}`;
 }
 
 function itemAmountId(item) {
-  return `item-amount-${item.id}`;
+  return `item-amount-${item.mkt}`;
 }
 
 function handlePaymentAlert() {
@@ -167,8 +171,7 @@ function itemTrashIcon(item) {
     totalPrice -= item.price * item.amount;
 
     items.splice(items.indexOf(item), 1);
-    updateStockAmount(item.id, item.amount);
-    removeFromCart(item.id);
+    removeFromCart(item.mkt, true);
     renderItems();
   };
 
@@ -198,38 +201,60 @@ function changeAmountButton(item, operator) {
   return button;
 }
 
-function updateItemAndTotalPrices(item, operator) {
+async function updateItemAndTotalPrices(item, operator) {
   if (operator === "+") {
-    if (!isAmountAvailable(item.id)) {
+    const isInStock = await isStock(item.mkt, item.amount);
+    if (!isInStock) {
       alert(
         "More from this item is not available at the moment. Please check again later"
       );
       return;
     }
     item.amount++;
-    updateStockAmount(item.id, -1); //---------
-    updateCartAmount(item.id, 1); //---------
+    await setCurrentCart(item.mkt);
     totalPrice += item.price;
   } else if (item.amount > 1 && operator === "-") {
     item.amount--;
-    updateStockAmount(item.id, 1); //---------
-    updateCartAmount(item.id, -1); //--------
+    await removeFromCart(item.mkt);
     totalPrice -= item.price;
   }
+
   renderItemPriceAndAmount(item);
   renderTotalPrice();
 }
 
-function getItemsFromCart() {
-  const items = JSON.parse(localStorage.getItem("currentCart"));
+async function getItemsFromCart() {
+  let arr = [];
+  try {
+    const mktFavorite = await getCurrentCart();
+    console.log(mktFavorite);
+
+    const res = await fetch(`http://127.0.0.1:3000/products`);
+    const products = await res.json();
+
+    if (mktFavorite.length !== 0) {
+      for (let index = 0; index < mktFavorite.length; index++) {
+        let product = products.data.filter(
+          (p) => p.mkt === mktFavorite[index].mkt
+        )[0];
+        product.amount = mktFavorite[index].amount;
+        arr.push(product);
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+
+  console.log(arr);
   const result = [];
-  if (items) {
-    items.forEach((item) => {
+  if (arr) {
+    arr.forEach((item) => {
+      console.log(item);
       result.push({
-        id: item.id,
+        mkt: item.mkt,
         name: item.name,
         amount: item.amount,
-        imageSrc: item.image,
+        imageSrc: item.img,
         price: toNumber(item.price),
       });
     });
