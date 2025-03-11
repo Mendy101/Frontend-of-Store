@@ -14,7 +14,7 @@ function initializeNavbarLogin() {
     usernameElement.querySelector(
       "#userNameDisplay"
     ).innerHTML = `${userData.firstName}`;
-    logoutElement.style.display = "block"
+    logoutElement.style.display = "block";
 
     if (userData.role.toLowerCase() === "admin") {
       stockOption.style.display = "block";
@@ -25,10 +25,18 @@ function initializeNavbarLogin() {
     logoutElement.style.display = "none";
   }
 
-  logoutElement.addEventListener("click", function () {
+  logoutElement.addEventListener("click", async function () {
     localStorage.removeItem("userData");
-    localStorage.removeItem("currentCart");
-    localStorage.removeItem("favorites_arr");
+    try {
+      const response = await fetch("http://127.0.0.1:8081/user/logout", {
+        method: "GET",
+        credentials: "include",
+      });
+      const res = await response.json();
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
     location.reload();
   });
 }
