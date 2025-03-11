@@ -1,0 +1,52 @@
+.container {
+  padding-top: 5px;
+  max-width: 90%;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 50px;
+}
+
+.row {
+  background: white;
+  margin-bottom: 30px;
+}
+
+.product-box {
+  margin-bottom: 20px;
+}
+
+.product-content {
+  height: 100%;
+  border: 1px solid #ccc;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-content img {
+  width: 70%;
+  height: 70%;
+  margin: auto;
+}
+
+.product-content p {
+  padding: 10px;
+  font-size: 16px;
+  color: #333;
+}
+
+.product-box a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.product-box a:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.container h2 {
+  margin-top: 20px;
+  text-align: center;
+}

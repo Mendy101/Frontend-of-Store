@@ -12,12 +12,13 @@ function submitLogin() {
     headers: {
       "Content-Type": "application/json",
     },
+    credentials: "include",
     body: JSON.stringify(userData),
   })
     .then((response) => response.json())
     .then((data) => {
       console.log(data);
-      if (data) {
+      if (data.success) {
         alert("Login successful!");
         window.location.href = "../HTML/Index.html"; // Redirect to dashboard or home page
       } else {

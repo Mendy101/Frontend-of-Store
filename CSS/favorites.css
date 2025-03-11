@@ -1,0 +1,50 @@
+.container h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 36px;
+  letter-spacing: 1px;
+}
+
+.card {
+  width: 200px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.card-img-top {
+  height: 200px;
+  width: 100%;
+  object-fit: contain;
+  background-color: #f8f9fa;
+}
+
+.type {
+  height: 60px;
+}
+.id-price {
+  height: 50px;
+}
+
+#cart-btn,
+#favorite-btn {
+  max-width: 50px;
+  max-height: 35px;
+  min-height: 35px;
+
+  border: none;
+  border-radius: 5px;
+}
+
+#favorite-btn {
+  background: rgb(224, 165, 3);
+}
+
+#cart-btn {
+  background: rgb(221, 221, 5);
+  height: 35px;
+  width: 60px;
+}
