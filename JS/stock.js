@@ -1,5 +1,5 @@
 // DB of all inventory of the store
-const local_storage_inventory_name = "inventory";
+// const local_storage_inventory_name = "inventory";
 
 // /**
 //  * Generate row on a Vanilla HTML table
