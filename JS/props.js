@@ -1,16 +1,3 @@
-//when window is on loading
-// window.onload = function () {
-//   createTopLine(); //create the top line
-//   printData(props_arr, "Props"); //create element in page
-
-//   //create button for price filter
-//   document.getElementById("filterIn").innerHTML = `
-//   <button onclick="filter(props_arr,'Props',69,2500)" class="mt-2">Filter</button>`;
-//   createPlaceholder(69, 2500);
-
-//   createListOfElement();
-// };
-
 /**
  * top line in button sort
  * create list of options

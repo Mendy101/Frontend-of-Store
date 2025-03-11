@@ -1,16 +1,3 @@
-// //when window is on loading
-// window.onload = function () {
-//   createTopLine(); //create the top line
-//   printData(smartphones_arr, "Smartphone"); //create element in page
-
-//   //create button for price filter
-//   document.getElementById("filterIn").innerHTML = `
-//   <button onclick="filter(smartphones_arr,'Smartphone',389,5429)" class="mt-2">Filter</button>`;
-//   createPlaceholder(389, 5429);
-
-//   createListOfElement();
-// };
-
 /**
  * top line in button sort
  * create list of options
@@ -53,8 +40,6 @@ function listOfColor() {
   `;
 }
 
-// let data = fetchDataFromServer("smartphones", "Smartphone");
-// console.log(data)
 let data = [];
 async function loadData() {
   data = await fetchDataFromServer("smartphones", "Smartphone");

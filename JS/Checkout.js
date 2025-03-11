@@ -171,8 +171,7 @@ function itemTrashIcon(item) {
     totalPrice -= item.price * item.amount;
 
     items.splice(items.indexOf(item), 1);
-    // updateStockAmount(item.mkt, item.amount);
-    removeFromCart(item.mkt,true);
+    removeFromCart(item.mkt, true);
     renderItems();
   };
 
@@ -204,7 +203,8 @@ function changeAmountButton(item, operator) {
 
 async function updateItemAndTotalPrices(item, operator) {
   if (operator === "+") {
-    if (!isStock(item.mkt)) {
+    const isInStock = await isStock(item.mkt, item.amount);
+    if (!isInStock) {
       alert(
         "More from this item is not available at the moment. Please check again later"
       );

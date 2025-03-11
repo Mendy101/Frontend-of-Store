@@ -1,16 +1,3 @@
-// window.onload = function () {
-//   createTopLine();
-
-//   printData(computers_arr, "Computer"); //create element in page
-
-//   //create button for price filter
-//   document.getElementById("filterIn").innerHTML = `
-//   <button onclick="filter(computers_arr,'Computer',2999,9899)" class="mt-2">Filter</button>`;
-//   createPlaceholder(2999, 9899);
-
-//   createListOfElement();
-// };
-
 /**
  * top line in button sort
  * create list of options

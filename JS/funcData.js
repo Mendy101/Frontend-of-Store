@@ -196,7 +196,6 @@ function addBanner(id) {
 }
 
 ///------ Favorite API ------///
-
 const setFavorite = async (product) => {
   try {
     const response = await fetch("http://127.0.0.1:8081/user/addFavorite", {
@@ -294,7 +293,7 @@ async function saveFavoritesInprintData() {
 }
 
 ///------ Cart API ------///
-const isStock = async (mkt) => {
+const isStock = async (mkt, wantAmount = 0) => {
   try {
     const response = await fetch(
       `http://127.0.0.1:3000/products/stocks?mkts=${mkt}`,
@@ -305,8 +304,8 @@ const isStock = async (mkt) => {
     );
 
     const amount = await response.json();
-    console.log("amount: ", amount, "\nmkt: ", amount[mkt]);
-    return amount[mkt] > 0;
+    console.log("mkt: ", amount[mkt], "\nwantAmount: ", wantAmount);
+    return amount[mkt] > wantAmount;
   } catch (error) {
     console.log(error);
   }
@@ -337,7 +336,6 @@ const setCurrentCart = async (mkt) => {
  * @param {number} productId id of item
  */
 async function removeFromCart(mkt, rm = null) {
-  console.log(rm);
   try {
     const response = await fetch("http://127.0.0.1:8081/user/removeFromCart", {
       method: "POST",
@@ -368,15 +366,25 @@ const getCurrentCart = async () => {
  * @param {object} product the product favorite
  */
 async function addToCart(mkt) {
-  const isInStock = await isStock(mkt);
-  console.log("is in stock: ", isInStock);
-  if (isInStock) {
-    const res = await setCurrentCart(mkt);
-    console.log(res);
-    if (res.success) alert("Add to cart successfully");
-  } else {
-    alert("The item is not in stock");
-  }
+  try {
+    const cart = await getCurrentCart();
+    const product = cart.filter((p) => p.mkt == mkt)[0];
+
+    let isInStock = false;
+    if (product) isInStock = await isStock(mkt, product.amount);
+    else isInStock = await isStock(mkt, 0);
+
+    console.log("is in stock: ", isInStock);
+    if (isInStock) {
+      const res = await setCurrentCart(mkt);
+      console.log(res);
+      if (res.success) alert("Add to cart successfully");
+    } else {
+      alert(
+        "More from this item is not available at the moment. Please check again later"
+      );
+    }
+  } catch (err) {}
 }
 
 async function fetchDataFromServer(category, id) {
