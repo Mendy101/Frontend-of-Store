@@ -10,8 +10,6 @@ async function renderItems() {
     items = await getItemsFromCart();
   }
 
-  console.log(items);
-
   for (let i = 0; i < items.length; i++) {
     const row = itemRow();
     const box = itemBox();
@@ -32,28 +30,7 @@ async function renderItems() {
     itemProperties.forEach((property) => box.appendChild(property));
     itemList.appendChild(row);
   }
-  // items.forEach((item) => {
-  //   const row = itemRow();
-  //   const box = itemBox();
-  //   totalPrice += item.price * item.amount;
 
-  //   row.appendChild(box);
-  //   row.appendChild(divider()); ////
-
-  //   const itemProperties = [
-  //     itemImg(`../Images/${item.imageSrc}`),
-  //     itemNameAndPrice(item),
-  //     increaseAmount(item),
-  //     itemAmount(item),
-  //     decreaseAmount(item),
-  //     itemTrashIcon(item),
-  //   ];
-
-  //   itemProperties.forEach((property) => box.appendChild(property));
-  //   itemList.appendChild(row);
-  // });
-
-  // debugger;
   renderTotalPrice();
 }
 
@@ -71,11 +48,11 @@ function renderItemPriceAndAmount(item) {
 }
 
 function itemPriceId(item) {
-  return `item-price-${item.id}`;
+  return `item-price-${item.mkt}`;
 }
 
 function itemAmountId(item) {
-  return `item-amount-${item.id}`;
+  return `item-amount-${item.mkt}`;
 }
 
 function handlePaymentAlert() {
@@ -194,8 +171,8 @@ function itemTrashIcon(item) {
     totalPrice -= item.price * item.amount;
 
     items.splice(items.indexOf(item), 1);
-    updateStockAmount(item.id, item.amount);
-    removeFromCart(item.id);
+    // updateStockAmount(item.mkt, item.amount);
+    removeFromCart(item.mkt);
     renderItems();
   };
 
@@ -225,45 +202,23 @@ function changeAmountButton(item, operator) {
   return button;
 }
 
-/**
- *update amount in stock
- */
-function updateCartAmount(productId, amount) {
-  const currentCart = getCurrentCart();
-  const product = currentCart.find((item) => item.id === productId);
-  if (product) {
-    // product.amount = product.amount + amount;
-    const updatedAmount = product.amount + amount;
-    if (updatedAmount < 0) {
-      alert(
-        `Unable to complete the request. product inventory is ${product.amount}`
-      );
-      throw new Error("Error: Amount cannot go below zero");
-    }
-
-    product.amount = updatedAmount;
-    setCurrentCart(currentCart); //update cart
-  }
-}
-
-function updateItemAndTotalPrices(item, operator) {
+async function updateItemAndTotalPrices(item, operator) {
   if (operator === "+") {
-    if (!isAmountAvailable(item.id)) {
+    if (!isStock(item.mkt)) {
       alert(
         "More from this item is not available at the moment. Please check again later"
       );
       return;
     }
     item.amount++;
-    updateStockAmount(item.id, -1); //---------
-    updateCartAmount(item.id, 1); //---------
+    await setCurrentCart(item.mkt);
     totalPrice += item.price;
   } else if (item.amount > 1 && operator === "-") {
     item.amount--;
-    updateStockAmount(item.id, 1); //---------
-    updateCartAmount(item.id, -1); //--------
+    await removeFromCart(item.mkt);
     totalPrice -= item.price;
   }
+
   renderItemPriceAndAmount(item);
   renderTotalPrice();
 }
@@ -296,7 +251,7 @@ async function getItemsFromCart() {
     arr.forEach((item) => {
       console.log(item);
       result.push({
-        id: item.mkt,
+        mkt: item.mkt,
         name: item.name,
         amount: item.amount,
         imageSrc: item.img,
