@@ -336,12 +336,13 @@ const setCurrentCart = async (mkt) => {
  * remove item from the cart
  * @param {number} productId id of item
  */
-async function removeFromCart(mkt) {
+async function removeFromCart(mkt, rm = null) {
+  console.log(rm);
   try {
     const response = await fetch("http://127.0.0.1:8081/user/removeFromCart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mkt: mkt }),
+      body: JSON.stringify({ mkt, rm }),
       credentials: "include",
     });
     const res = await response.json();

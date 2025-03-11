@@ -172,7 +172,7 @@ function itemTrashIcon(item) {
 
     items.splice(items.indexOf(item), 1);
     // updateStockAmount(item.mkt, item.amount);
-    removeFromCart(item.mkt);
+    removeFromCart(item.mkt,true);
     renderItems();
   };
 
