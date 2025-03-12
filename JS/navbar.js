@@ -28,7 +28,7 @@ function initializeNavbarLogin() {
   logoutElement.addEventListener("click", async function () {
     localStorage.removeItem("userData");
     try {
-      const response = await fetch("http://127.0.0.1:8081/user/logout", {
+      const response = await fetch("http://localhost:8081/user/logout", {
         method: "GET",
         credentials: "include",
       });

@@ -1,30 +1,3 @@
-// DB of all inventory of the store
-// const local_storage_inventory_name = "inventory";
-
-// /**
-//  * Generate row on a Vanilla HTML table
-//  */
-// function displayInventory(stock = getInventory()) {
-//   const inventoryTableBody = document.getElementById('inventory-table-body');
-//   inventoryTableBody.innerHTML = '';
-
-//   stock.forEach((item) => {
-//     const row = document.createElement('tr');
-//     row.innerHTML = `
-//       <td>${item.id}</td>
-//       <td>${item.type}</td>
-//       <td>${item.amount}</td>
-//         <td><img src="../images/${item.image}" alt="${item.type}" style="width: 100px; height: auto;"></td>
-//     `;
-//     inventoryTableBody.appendChild(row);
-//   });
-// }
-
-/**
- * Using bootstrap to display items in stock
- */
-//---------------------------------------------------------------------------------
-
 async function displayInventory() {
   try {
     const stock = await getInventory();

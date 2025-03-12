@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", loadBootstrapAndInitialize);
 
 async function getInventory() {
   try {
-    const response = await fetch(`http://127.0.0.1:3000/products`, {
+    const response = await fetch(`http://localhost:3000/products`, {
       method: "GET",
     });
     const res = await response.json();
@@ -47,43 +47,3 @@ async function getInventory() {
     return [];
   }
 }
-
-//--------------------------------------------------------------------------------------------------------------------
-
-// function updateStockAmount(productId, amount) {
-//   const stock = getInventory();
-//   const product = stock.find((item) => item.id === productId);
-//   if (product) {
-//     const updatedAmount = product.stock + amount;
-//     if (updatedAmount < 0) {
-//       alert(
-//         `Unable to complete the request. product inventory is ${product.stock}`
-//       );
-//       throw new Error("Error: Amount cannot go below zero");
-//     }
-
-//     product.stock = updatedAmount;
-//     setInventory(stock);
-//   } else {
-//     throw new Error(`Product with id: ${productId} not found`);
-//   }
-// }
-
-// const getProductAmount = (productId) => {
-//   const stock = getInventory();
-//   for (const item of stock) {
-//     if (item.id == productId) {
-//       return item.amount;
-//     }
-//   }
-// };
-
-// function isAmountAvailable(itemId) {
-//   const data = JSON.parse(localStorage.getItem("inventory")) || [];
-
-//   let found = false;
-//   data.forEach((item) => {
-//     if (item.id === itemId && 0 < item.amount) found = true;
-//   });
-//   return found;
-// }

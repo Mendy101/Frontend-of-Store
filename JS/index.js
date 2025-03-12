@@ -9,7 +9,7 @@ async function displayRandomProducts() {
   let productSmartphones, productProps, productComputers, productTablets;
   try {
     const res = await fetch(
-      `http://127.0.0.1:3000/products/categories?categories=tablets,smartphones,accessories,laptops`
+      `http://localhost:3000/products/categories?categories=tablets,smartphones,accessories,laptops`
     );
     const products = (await res.json()).data;
     productTablets = products["tablets"];
