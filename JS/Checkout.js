@@ -10,8 +10,6 @@ async function renderItems() {
     items = await getItemsFromCart();
   }
 
-  console.log(items);
-
   for (let i = 0; i < items.length; i++) {
     const row = itemRow();
     const box = itemBox();
@@ -112,11 +110,8 @@ function handlePaymentAlert() {
 
       if(res.success) {
         successAlert.classList.add("d-block");
-        setTimeout(() => window.location.href = "../HTML/Index.html", 1000);
       }
-      await items.forEach(async (item) => await removeFromCart(item.mkt, true));
-      // await renderItems()
-      console.log("render");
+      await removeAllItems();
     } catch (err) {
       console.log(err);
     }
@@ -126,11 +121,19 @@ function handlePaymentAlert() {
       sendEmail(
         userData.email,
         userData.firstName,
-        document.getElementById("total-price").innerText,
-        JSON.parse(localStorage.getItem("currentCart"))
+        document.getElementById("total-price").innerText
       );
     }
   });
+}
+
+async function removeAllItems() {
+  for (const item of items) {
+    await removeFromCart(item.mkt, true);
+  }
+  items = null;
+  await renderItems();
+  console.log("render");
 }
 
 window.onload = function () {
@@ -221,12 +224,12 @@ function itemTrashIcon(item) {
   svg.appendChild(path);
   button.appendChild(svg);
 
-  button.onclick = () => {
+  button.onclick = async () => {
     totalPrice -= item.price * item.amount;
 
     items.splice(items.indexOf(item), 1);
-    removeFromCart(item.mkt, true);
-    renderItems();
+    await removeFromCart(item.mkt, true);
+    await renderItems();
   };
 
   return button;
