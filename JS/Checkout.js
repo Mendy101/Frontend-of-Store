@@ -10,8 +10,6 @@ async function renderItems() {
     items = await getItemsFromCart();
   }
 
-  console.log(items);
-
   for (let i = 0; i < items.length; i++) {
     const row = itemRow();
     const box = itemBox();
@@ -99,7 +97,7 @@ function handlePaymentAlert() {
       console.log(sendData);
       console.log(myAddress);
 
-      const response = await fetch("http://127.0.0.1:3002/orders", {
+      const response = await fetch("http://localhost:3002/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -111,9 +109,7 @@ function handlePaymentAlert() {
       const res = await response.json();
       console.log(res);
 
-      await items.forEach(async (item) => await removeFromCart(item.mkt, true));
-      location.reload();
-      console.log("render");
+      await removeAllItems();
     } catch (err) {
       console.log(err);
     }
@@ -123,11 +119,19 @@ function handlePaymentAlert() {
       sendEmail(
         userData.email,
         userData.firstName,
-        document.getElementById("total-price").innerText,
-        JSON.parse(localStorage.getItem("currentCart"))
+        document.getElementById("total-price").innerText
       );
     }
   });
+}
+
+async function removeAllItems() {
+  for (const item of items) {
+    await removeFromCart(item.mkt, true);
+  }
+  items = null;
+  await renderItems();
+  console.log("render");
 }
 
 window.onload = function () {
@@ -218,12 +222,12 @@ function itemTrashIcon(item) {
   svg.appendChild(path);
   button.appendChild(svg);
 
-  button.onclick = () => {
+  button.onclick = async () => {
     totalPrice -= item.price * item.amount;
 
     items.splice(items.indexOf(item), 1);
-    removeFromCart(item.mkt, true);
-    renderItems();
+    await removeFromCart(item.mkt, true);
+    await renderItems();
   };
 
   return button;
