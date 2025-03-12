@@ -67,7 +67,6 @@ function handlePaymentAlert() {
     if (!checkInput()) return;
 
     successAlert.classList.remove("d-none");
-    successAlert.classList.add("d-block");
 
     try {
       if (!items) {
@@ -99,7 +98,7 @@ function handlePaymentAlert() {
       console.log(sendData);
       console.log(myAddress);
 
-      const response = await fetch("http://127.0.0.1:3002/orders", {
+      const response = await fetch("http://localhost:3002/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -109,10 +108,14 @@ function handlePaymentAlert() {
         credentials: "include",
       });
       const res = await response.json();
-      console.log(res);
+      console.log(JSON.stringify(res));
 
+      if(res.success) {
+        successAlert.classList.add("d-block");
+        setTimeout(() => window.location.href = "../HTML/Index.html", 1000);
+      }
       await items.forEach(async (item) => await removeFromCart(item.mkt, true));
-      location.reload();
+      // await renderItems()
       console.log("render");
     } catch (err) {
       console.log(err);

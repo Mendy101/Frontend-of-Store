@@ -36,8 +36,9 @@ document.addEventListener("DOMContentLoaded", loadBootstrapAndInitialize);
 
 async function getInventory() {
   try {
-    const response = await fetch(`http://127.0.0.1:3000/products`, {
+    const response = await fetch(`http://localhost:3000/admin/products`, {
       method: "GET",
+      credentials: 'include'
     });
     const res = await response.json();
     console.log(res);

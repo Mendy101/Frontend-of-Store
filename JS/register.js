@@ -16,6 +16,8 @@ function submitRegistration() {
       phone: phone,
       password: password,
     };
+
+    console.log(typeof userData.phone)
   
     fetch("http://localhost:8081/user/register", {
       method: "POST",
@@ -26,13 +28,18 @@ function submitRegistration() {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Success:", data);
-        if (data) {
+        console.log(JSON.stringify(data))
+        if (data.success) {
+          // window.location.href = "../HTML/index.html";
           window.location.href = "../HTML/login.html";
+        } else {
+          console.error("Error:", data.error);
+          alert(`Failed to register. Please try again. error: ${data.error}`);
         }
       })
       .catch((error) => {
-        console.error("Error:", error);
-        alert("Failed to register. Please try again.");
+        const msg = `Seems like the server is down or on another port. request url: http://localhost:8081/user/register`
+        console.log(msg);
+        throw new Error(msg, {cause: error})
       });
   }

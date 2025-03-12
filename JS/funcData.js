@@ -198,7 +198,7 @@ function addBanner(id) {
 ///------ Favorite API ------///
 const setFavorite = async (product) => {
   try {
-    const response = await fetch("http://127.0.0.1:8081/user/addFavorite", {
+    const response = await fetch("http://localhost:8081/user/addFavorite", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ mkt: product.mkt }),
@@ -214,7 +214,7 @@ const setFavorite = async (product) => {
 const removeFavorite = async (mkt) => {
   try {
     const response = await fetch(
-      "http://127.0.0.1:8081/user/removeFromFavorite",
+      "http://localhost:8081/user/removeFromFavorite",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -229,9 +229,9 @@ const removeFavorite = async (mkt) => {
 
 const getFavorites = async () => {
   try {
-    const response = await fetch("http://127.0.0.1:8081/user/favorites", {
+    const response = await fetch("http://localhost:8081/user/favorites", {
       method: "GET",
-      credentials: "include", // שולח cookies לשרת
+      credentials: "include",
     });
     const res = await response.json();
     return res;
@@ -296,7 +296,7 @@ async function saveFavoritesInprintData() {
 const isStock = async (mkt, wantAmount = 0) => {
   try {
     const response = await fetch(
-      `http://127.0.0.1:3000/products/stocks?mkts=${mkt}`,
+      `http://localhost:3000/products/stocks?mkts=${mkt}`,
       {
         method: "GET",
         // credentials: "include",
@@ -317,7 +317,7 @@ const isStock = async (mkt, wantAmount = 0) => {
  */
 const setCurrentCart = async (mkt) => {
   try {
-    const response = await fetch("http://127.0.0.1:8081/user/addToCart", {
+    const response = await fetch("http://localhost:8081/user/addToCart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ mkt: mkt }),
@@ -337,7 +337,7 @@ const setCurrentCart = async (mkt) => {
  */
 async function removeFromCart(mkt, rm = null) {
   try {
-    const response = await fetch("http://127.0.0.1:8081/user/removeFromCart", {
+    const response = await fetch("http://localhost:8081/user/removeFromCart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ mkt, rm }),
@@ -350,7 +350,7 @@ async function removeFromCart(mkt, rm = null) {
 
 const getCurrentCart = async () => {
   try {
-    const response = await fetch("http://127.0.0.1:8081/user/cart", {
+    const response = await fetch("http://localhost:8081/user/cart", {
       method: "GET",
       credentials: "include", // שולח cookies לשרת
     });
@@ -390,7 +390,7 @@ async function addToCart(mkt) {
 async function fetchDataFromServer(category, id) {
   try {
     const response = await fetch(
-      `http://127.0.0.1:3000/products/categories?categories=${category}&isInStock=true`
+      `http://localhost:3000/products/categories?categories=${category}&isInStock=true`
     );
     const res = await response.json();
     myOnload(res, id);

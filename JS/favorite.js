@@ -28,7 +28,7 @@ async function displayFavoriteItems() {
       const itemElement = document.createElement("div");
       itemElement.classList.add("col-md-2", "mb-2");
 
-      itemElement.innerHTML = innerHTMLOfFavorites(item);
+      itemElement.innerHTML = innerHTMLOfFavorites({...item, mkt: id});
       favoriteContainer.appendChild(itemElement); //display item
     });
   }

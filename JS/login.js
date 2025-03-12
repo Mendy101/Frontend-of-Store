@@ -14,14 +14,17 @@ function submitLogin() {
     headers: {
       "Content-Type": "application/json",
     },
+    credentials:'include',
     body: JSON.stringify(user),
   })
-    .then((response) => response.json())
+
+    .then((response) => {
+      return response.json();
+    })
     .then((data) => {
       console.log(data.info);
       if (data.success) {
         alert("Login successful!");
-        //----------------------------------------------
 
         complexArray.push({
           firstName: data.info.name,
